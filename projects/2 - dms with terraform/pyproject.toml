@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "2 - dms with terraform"
+version = "0.1.0"
+description = ""
+authors = ["Gustavo de Souza Gonçalves <goncalves.gustavo211@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+mysql-connector-python = "^9.1.0"
+sqlalchemy = "^2.0.36"
+faker = "^33.1.0"
+python-ulid = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
