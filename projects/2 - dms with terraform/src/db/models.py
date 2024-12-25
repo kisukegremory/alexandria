@@ -1,7 +1,9 @@
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, VARCHAR, DATETIME, DATE
+from sqlalchemy import Column, Integer, VARCHAR, DATETIME, DATE, MetaData
 
-Base = declarative_base()
+metadata = MetaData()
+Base = declarative_base(metadata=metadata)
+
 
 class Pets(Base):
     __tablename__ = "pets"
@@ -12,6 +14,10 @@ class Pets(Base):
     created = Column(DATETIME)
     owner_id = Column(Integer, index=True)
 
+    def values(self):
+        return {x.name: getattr(self, x.name) for x in self.__table__.columns}
+
+
 
 class Owners(Base):
     __tablename__ = "owners"
@@ -20,3 +26,7 @@ class Owners(Base):
     name = Column(VARCHAR(45))
     address = Column(VARCHAR(90))
     created = Column(DATETIME)
+
+    def values(self):
+        return {x.name: getattr(self, x.name) for x in self.__table__.columns}
+
