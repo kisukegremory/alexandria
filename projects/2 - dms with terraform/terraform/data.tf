@@ -4,3 +4,9 @@ data "aws_subnets" "this" {
     values = [aws_default_vpc.this.id]
   }
 }
+
+data "aws_security_group" "default" {
+  name = "default"
+}
+
+
