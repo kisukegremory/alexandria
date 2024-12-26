@@ -1,1 +1,1 @@
-from src.data import generate as generate 
+from src.data import generate as generate

@@ -18,7 +18,6 @@ class Pets(Base):
         return {x.name: getattr(self, x.name) for x in self.__table__.columns}
 
 
-
 class Owners(Base):
     __tablename__ = "owners"
 
@@ -29,4 +28,3 @@ class Owners(Base):
 
     def values(self):
         return {x.name: getattr(self, x.name) for x in self.__table__.columns}
-

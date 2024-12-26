@@ -4,7 +4,6 @@ from sqlalchemy.dialects.mysql import insert
 
 
 def bulk_insert(records: list[Table], engine):
-
     mapper = class_mapper(records[0].__class__)
 
     stmt = insert(records[0].__class__).values(
