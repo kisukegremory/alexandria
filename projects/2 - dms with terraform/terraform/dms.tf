@@ -21,11 +21,6 @@ resource "aws_dms_replication_instance" "test" {
 
   vpc_security_group_ids = [data.aws_security_group.default.id]
 
-  depends_on = [
-    aws_iam_role_policy_attachment.dms-access-for-endpoint-AmazonDMSRedshiftS3Role,
-    aws_iam_role_policy_attachment.dms-cloudwatch-logs-role-AmazonDMSCloudWatchLogsRole,
-    aws_iam_role_policy_attachment.dms-vpc-role-AmazonDMSVPCManagementRole
-  ]
 }
 
 
@@ -43,9 +38,9 @@ resource "aws_dms_endpoint" "rds_source" {
 }
 
 resource "aws_dms_s3_endpoint" "target" {
-  endpoint_type = "target"
-  endpoint_id   = aws_s3_bucket.this.id
-  bucket_name = aws_s3_bucket.this.bucket
+  endpoint_type           = "target"
+  endpoint_id             = aws_s3_bucket.this.id
+  bucket_name             = aws_s3_bucket.this.bucket
   service_access_role_arn = aws_iam_role.dms-access-for-endpoint.arn
-  tags = local.common_tags
+  tags                    = local.common_tags
 }
