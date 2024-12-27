@@ -1,5 +1,5 @@
 locals {
-  project_name = "terraform-dms-from-rds"
+  project_name = "ninadb-to-s3"
   common_tags = {
     team    = "Gustavo"
     env     = "dev"

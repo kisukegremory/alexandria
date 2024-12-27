@@ -12,13 +12,10 @@ resource "aws_dms_replication_instance" "test" {
   replication_instance_class   = "dms.t2.micro"
   engine_version               = "3.5.2"
   multi_az                     = false
-  preferred_maintenance_window = "sun:10:30-sun:14:30"
   publicly_accessible          = true
-  replication_instance_id      = local.project_name
+  replication_instance_id      = "${local.project_name}-dms-replication-instance"
   replication_subnet_group_id  = aws_dms_replication_subnet_group.this.id
   tags                         = local.common_tags
-
-
   vpc_security_group_ids = [data.aws_security_group.default.id]
 
 }
