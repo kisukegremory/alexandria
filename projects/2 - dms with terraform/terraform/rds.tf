@@ -14,7 +14,7 @@ resource "aws_db_instance" "this" {
   engine                 = "mysql"
   engine_version         = "8.0.39"
   username               = "admin"
-  password               = "nininha11"
+  password               = "admin"
   skip_final_snapshot    = true
   publicly_accessible    = true
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
