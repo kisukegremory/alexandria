@@ -1,3 +1,7 @@
+data "aws_security_group" "default" {
+  name = "default"
+}
+
 resource "aws_dms_replication_subnet_group" "this" {
   replication_subnet_group_id          = local.project_name
   replication_subnet_group_description = "Subnet group for replication of ${local.project_name}"

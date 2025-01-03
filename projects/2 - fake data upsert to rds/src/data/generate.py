@@ -5,10 +5,9 @@ from datetime import datetime
 fake = faker.Faker()
 
 
-def owner(_id: int) -> db.models.Owners:
+def owner() -> db.models.Owners:
     return db.models.Owners(
         **{
-            "id": _id,
             "name": fake.name(),
             "address": fake.address(),
             "created": datetime.now(),

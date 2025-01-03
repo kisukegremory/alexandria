@@ -4,7 +4,7 @@ import itertools
 
 
 def main(n_owners=500):
-    owners = [data.generate.owner(_id=n) for n in range(n_owners)]
+    owners = [data.generate.owner() for n in range(n_owners)]
     db.operations.bulk_insert(owners, db.engine)
 
     pets = [

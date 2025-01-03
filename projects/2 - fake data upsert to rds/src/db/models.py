@@ -21,7 +21,7 @@ class Pets(Base):
 class Owners(Base):
     __tablename__ = "owners"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(45))
     address = Column(VARCHAR(90))
     created = Column(DATETIME)
