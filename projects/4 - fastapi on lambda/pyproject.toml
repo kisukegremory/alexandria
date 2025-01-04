@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "terraform-fastapi-on-lambda"
+version = "0.1.0"
+description = ""
+authors = ["Gustavo de Souza Gonçalves <goncalves.gustavo211@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+mangum = "^0.19.0"
+fastapi = "^0.115.6"
+httpx = "^0.28.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+ruff = "^0.8.2"
+uvicorn = "^0.32.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
