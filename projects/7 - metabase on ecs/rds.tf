@@ -20,3 +20,7 @@ resource "aws_db_instance" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   apply_immediately      = true
 }
+
+output "rds_host" {
+  value = aws_db_instance.this.address
+}
