@@ -13,3 +13,7 @@ Steps:
 8. Abrir o dns no /setup
 
 Ao rodar o projeto teremos: 
+
+![alt text](images/metabase.png)
+
+Voilá! agora você pode criar seu usuário e poder distribuir questions por aí!
