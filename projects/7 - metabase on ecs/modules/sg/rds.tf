@@ -8,8 +8,8 @@ resource "aws_security_group" "rds" {
 resource "aws_vpc_security_group_ingress_rule" "rds" {
   security_group_id = aws_security_group.rds.id
   referenced_security_group_id = aws_security_group.lb.id
-  from_port         = 3306
-  to_port           = 3306
+  from_port         = 5432
+  to_port           = 5432
   ip_protocol       = "tcp"
 }
 
