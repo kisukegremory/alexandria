@@ -7,7 +7,7 @@ resource "aws_ecs_cluster" "this" {
   tags     = {}
   tags_all = {}
   service_connect_defaults {
-    namespace = "arn:aws:servicediscovery:us-east-2:361649602794:namespace/ns-g7iaxlcvr5r7jnge"
+    namespace = "arn:aws:servicediscovery:us-east-2:211125621777:namespace/ns-4ijlbevpwj6yp2gs"
   }
   setting {
     name  = "containerInsights"
@@ -15,16 +15,15 @@ resource "aws_ecs_cluster" "this" {
   }
 }
 
-# __generated__ by Terraform from "arn:aws:ecs:us-east-2:361649602794:task-definition/metabase-task-definition:1"
+# __generated__ by Terraform from "arn:aws:ecs:us-east-2:211125621777:task-definition/metabase-task-definition:1"
 resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([{
-    cpu = 1024
     environment = [{
       name  = "MB_DB_DBNAME"
       value = "metabaseappdb"
       }, {
       name  = "MB_DB_HOST"
-      value = "metabase-on-ecs-db.csbsah9wiyn6.us-east-2.rds.amazonaws.com"
+      value = "metabase-on-ecs-db.cjkyo8i8kqlx.us-east-2.rds.amazonaws.com"
       }, {
       name  = "MB_DB_PASS"
       value = "mysecretpassword"
@@ -53,10 +52,8 @@ resource "aws_ecs_task_definition" "this" {
       }
       secretOptions = []
     }
-    memory            = 3072
-    memoryReservation = 2048
-    mountPoints       = []
-    name              = "metabase-container"
+    mountPoints = []
+    name        = "metabase-container"
     portMappings = [{
       appProtocol   = "http"
       containerPort = 3000
@@ -69,7 +66,7 @@ resource "aws_ecs_task_definition" "this" {
     volumesFrom    = []
   }])
   cpu                      = jsonencode(1024)
-  execution_role_arn       = "arn:aws:iam::361649602794:role/ecsTaskExecutionRole"
+  execution_role_arn       = "arn:aws:iam::211125621777:role/ecsTaskExecutionRole"
   family                   = "metabase-task-definition"
   ipc_mode                 = null
   memory                   = jsonencode(3072)

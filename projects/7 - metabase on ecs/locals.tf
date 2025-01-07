@@ -1,4 +1,4 @@
 locals {
-  port = 80
+  metabase_port = 3000
   project_name = "metabase-on-ecs"
 }

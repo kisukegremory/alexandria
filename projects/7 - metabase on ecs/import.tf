@@ -5,5 +5,5 @@ import {
 
 import {
   to = aws_ecs_task_definition.this
-  id = "arn:aws:ecs:us-east-2:361649602794:task-definition/metabase-task-definition:1"
+  id = "arn:aws:ecs:us-east-2:211125621777:task-definition/metabase-task-definition:1"
 }
