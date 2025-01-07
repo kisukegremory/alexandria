@@ -16,5 +16,5 @@ resource "aws_vpc_security_group_egress_rule" "service" {
 }
 
 output "service_id" {
-  value = aws_security_group.lb.id
+  value = aws_security_group.service.id
 }

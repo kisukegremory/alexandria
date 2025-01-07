@@ -83,3 +83,24 @@ resource "aws_ecs_task_definition" "this" {
     operating_system_family = "LINUX"
   }
 }
+
+
+resource "aws_ecs_service" "demo_app_service" {
+  name            = "metabase-service"
+  cluster         = aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.this.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.this.arn
+    container_name   = "metabase-container"
+    container_port   = local.metabase_port
+  }
+
+  network_configuration {
+    subnets          = data.aws_subnets.default.ids
+    assign_public_ip = true
+    security_groups  = [module.sg.service_id]
+  }
+}
