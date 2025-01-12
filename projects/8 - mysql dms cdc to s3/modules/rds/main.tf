@@ -7,8 +7,8 @@ resource "aws_db_parameter_group" "this" {
   family = "mysql8.0"
   name   = "mysql-cdc"
   parameter {
-    name = "binlog_format"
-    value = "ROW"
+    name         = "binlog_format"
+    value        = "ROW"
     apply_method = "immediate"
   }
 }
@@ -36,3 +36,24 @@ output "endpoint" {
 }
 
 
+output "db_config" {
+  value = {
+    address  = aws_db_instance.this.address
+    dbname   = aws_db_instance.this.db_name
+    username = aws_db_instance.this.username
+    password = aws_db_instance.this.password
+  }
+}
+
+# output "address" {
+#   value = aws_db_instance.this.address
+# }
+# output "dbname" {
+#   value = aws_db_instance.this.db_name
+# }
+# output "username" {
+#   value = aws_db_instance.this.username
+# }
+# output "password" {
+#   value = aws_db_instance.this.password
+# }

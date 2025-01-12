@@ -12,13 +12,14 @@ module "vpc" {
 }
 
 module "rds" {
-  source = "./modules/rds"
+  source            = "./modules/rds"
   security_group_id = module.vpc.sg_rds_id
-  subnet_ids = module.vpc.subnet_ids
+  subnet_ids        = module.vpc.subnet_ids
 }
 
 module "dms" {
-  source = "./modules/dms"
+  source            = "./modules/dms"
   security_group_id = module.vpc.sg_dms_id
-  subnet_ids = module.vpc.subnet_ids
+  subnet_ids        = module.vpc.subnet_ids
+  db_config         = module.rds.db_config
 }

@@ -1,5 +1,5 @@
 resource "aws_default_vpc" "this" {
-  
+
 }
 
 data "aws_subnets" "this" {
