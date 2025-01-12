@@ -27,4 +27,5 @@ module "dms" {
   security_group_id = module.vpc.sg_dms_id
   subnet_ids        = module.vpc.subnet_ids
   db_config         = module.rds.db_config
+  bucket            = module.s3.bucket
 }

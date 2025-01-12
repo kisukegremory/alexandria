@@ -1,3 +1,13 @@
+variable "db_config" {
+  type = map(string)
+  default = {
+    address  = "..."
+    dbname   = "..."
+    username = "..."
+    password = "..."
+  }
+}
+
 resource "aws_dms_endpoint" "rds_source" {
   endpoint_type = "source"
   endpoint_id   = "ninadb"
@@ -9,5 +19,3 @@ resource "aws_dms_endpoint" "rds_source" {
   port          = 3306
 
 }
-
-
