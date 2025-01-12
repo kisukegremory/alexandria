@@ -17,6 +17,11 @@ module "rds" {
   subnet_ids        = module.vpc.subnet_ids
 }
 
+module "s3" {
+  source      = "./modules/s3"
+  bucket_name = "nina-bucket-s3-dms"
+}
+
 module "dms" {
   source            = "./modules/dms"
   security_group_id = module.vpc.sg_dms_id
