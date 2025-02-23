@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "iceberg"
+version = "0.1.0"
+description = ""
+authors = ["Gustavo de Souza Gonçalves <goncalves.gustavo211@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pyiceberg = {extras = ["hive", "pyarrow", "s3"], version = "^0.8.1"}
+sqlalchemy = "^2.0.38"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
