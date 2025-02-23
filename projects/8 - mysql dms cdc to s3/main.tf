@@ -22,6 +22,11 @@ module "s3" {
   bucket_name = "nina-bucket-s3-dms"
 }
 
+module "s3_silver" {
+  source      = "./modules/s3"
+  bucket_name = "nina-bucket-s3-silver"
+}
+
 module "dms" {
   source            = "./modules/dms"
   security_group_id = module.vpc.sg_dms_id

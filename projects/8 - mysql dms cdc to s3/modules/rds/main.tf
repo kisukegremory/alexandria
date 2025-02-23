@@ -11,6 +11,17 @@ resource "aws_db_parameter_group" "this" {
     value        = "ROW"
     apply_method = "immediate"
   }
+
+  parameter {
+    name = "binlog_row_image"
+    value = "FULL"
+  }
+
+  parameter {
+    name = "binlog_checksum"
+    value = "NONE"
+    apply_method = "immediate"
+  }
 }
 
 resource "aws_db_instance" "this" {
@@ -30,6 +41,11 @@ resource "aws_db_instance" "this" {
   vpc_security_group_ids = [var.security_group_id]
 }
 
+# resource "aws_db_instance_automated_backups_replication" "this" {
+#   source_db_instance_arn = aws_db_instance.this.arn
+#   retention_period = 2
+# }
+
 output "endpoint" {
   value       = aws_db_instance.this.endpoint
   description = "Endpoint para conectar ao banco de dados"
@@ -44,16 +60,3 @@ output "db_config" {
     password = aws_db_instance.this.password
   }
 }
-
-# output "address" {
-#   value = aws_db_instance.this.address
-# }
-# output "dbname" {
-#   value = aws_db_instance.this.db_name
-# }
-# output "username" {
-#   value = aws_db_instance.this.username
-# }
-# output "password" {
-#   value = aws_db_instance.this.password
-# }
