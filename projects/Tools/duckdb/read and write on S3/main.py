@@ -8,8 +8,8 @@ import duckdb
 conn = duckdb.connect()
 
 
-base_file = "resources/synthetic_fraud_dataset.csv"
-output_file = "s3://nina-resources/duckdb/consuption/synthetic/"
+base_file = "s3://nina-resources/resources/synthetic_fraud_dataset.csv"
+output_file = "s3://nina-resources/duckdb/consuption/synthetic"
 
 # Setup the connection
 conn.query("""
@@ -21,23 +21,36 @@ CREATE SECRET secretaws (
 );
 """)
 
+
+# Reading the file
 conn.query(f"""
     create table nina as 
     SELECT * FROM read_csv('{base_file}', header=true, delim = ',' , ignore_errors=true);
     """)
 
-# df = conn.query(f"""
-#     COPY nina
-#     TO '{output_file}' (
-#     FORMAT PARQUET,
-#     PARTITION_BY (Transaction_Type),
-#     OVERWRITE_OR_IGNORE true
-#     );
-# """)
 
+# Transfoming adding a new column
+df = conn.query(f"""
+    create table nina_dated as select date_trunc('month',Timestamp) as date, * from nina;
+    select * from nina_dated;
+""")
+
+
+# Example of partitioned write
+df = conn.query(f"""
+    COPY nina_dated
+    TO '{output_file}/partitioned' (
+    FORMAT PARQUET,
+    PARTITION_BY (date),
+    OVERWRITE_OR_IGNORE true
+    );
+""")
+
+
+# Example on single file write
 df = conn.query(f"""
     COPY nina
-    TO '{output_file}data.parquet' (
+    TO '{output_file}/standalone/data.parquet' (
     FORMAT PARQUET
     );
 """)
