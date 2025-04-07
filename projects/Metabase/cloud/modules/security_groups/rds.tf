@@ -1,16 +1,16 @@
 
 resource "aws_security_group" "rds" {
-  name        = "nina-rds-sg"
+  name        = "${var.project_name}-rds-sg"
   description = "Allow TLS inbound traffic for DB and all outbound traffic"
 }
 
 
 resource "aws_vpc_security_group_ingress_rule" "rds" {
   security_group_id = aws_security_group.rds.id
+  ip_protocol       = "tcp"
   referenced_security_group_id = aws_security_group.service.id
   from_port         = 5432
   to_port           = 5432
-  ip_protocol       = "tcp"
 }
 
 resource "aws_vpc_security_group_egress_rule" "rds" {

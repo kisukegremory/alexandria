@@ -1,5 +1,5 @@
 resource "aws_security_group" "service" {
-  name        = "nina-service-sg"
+  name        = "${var.project_name}-service-sg"
   description = "Allow inbound traffic from nina-lb-sg cidr"
 }
 
