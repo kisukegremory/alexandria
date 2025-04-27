@@ -3,5 +3,5 @@ data "aws_ecs_cluster" "this" {
 }
 
 data "aws_ecs_task_definition" "this" {
-  task_definition = "arn:aws:ecs:us-east-2:211125621777:task-definition/metabase-task-definition:3"
+ task_definition = "arn:aws:ecs:us-east-2:{{account}}:task-definition/metabase-task-definition-yt:2"
 }

@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "demo_app_service" {
-  name            = "metabase-service"
+  name            = "${var.project_name}-ecs-service"
   cluster         = data.aws_ecs_cluster.this.id
   task_definition = data.aws_ecs_task_definition.this.arn
   launch_type     = "FARGATE"
@@ -16,20 +16,4 @@ resource "aws_ecs_service" "demo_app_service" {
     assign_public_ip = true
     security_groups  = var.security_group_ids
   }
-}
-
-variable "subnet_ids" {
-  type = list(string)
-}
-
-variable "target_group_arn" {
-  type = string
-}
-
-variable "security_group_ids" {
-  type = list(string)
-}
-
-variable "port" {
-  type = number  
 }
