@@ -9,3 +9,9 @@ resource "aws_efs_file_system" "this" {
   }
   # Not usage of lifecycle!
 }
+
+resource "aws_efs_mount_target" "first" {
+  file_system_id = aws_efs_file_system.this.id
+  subnet_id      = data.aws_subnet.first.id
+  security_groups = [aws_security_group.efs.id]
+}
