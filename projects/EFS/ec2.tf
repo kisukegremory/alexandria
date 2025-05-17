@@ -37,13 +37,13 @@ resource "aws_vpc_security_group_egress_rule" "ec2-egress" {
 }
 
 
-resource "aws_instance" "first" {
+resource "aws_instance" "az-a" {
   ami                         = data.aws_ami.aws_ami.id
   associate_public_ip_address = true # Required for Session Manager with less configuration
   instance_type               = "t3.micro"
   vpc_security_group_ids      = [aws_security_group.ec2.id]
-  subnet_id                   = data.aws_subnet.first.id
-  iam_instance_profile        = data.aws_iam_role.ec2_session_manager.name # Required for Session Manager with less configuration
+  subnet_id                   = data.aws_subnet.az-a.id
+  iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name # Required for Session Manager with less configuration
   root_block_device {
     volume_type           = "gp3"
     volume_size           = 8
@@ -51,7 +51,46 @@ resource "aws_instance" "first" {
 
   }
   tags = {
-    Name = "${local.project_name}-first"
+    Name = "${local.project_name}-az-a"
   }
+
+  user_data = <<-EOT
+  #!/bin/bash
+  sudo -i
+  sudo yum install -y amazon-efs-utils
+  mkdir /data
+  sudo mount -t efs -o tls ${aws_efs_file_system.this.id}:/ /data
+  echo "$(date) Nina 1 estive aqui" >> /data/nina.log
+  echo "$(date) Nina 1 estive aqui" >> /data/nina1.log
+  EOT
+
+}
+
+resource "aws_instance" "az-b" {
+  ami                         = data.aws_ami.aws_ami.id
+  associate_public_ip_address = true # Required for Session Manager with less configuration
+  instance_type               = "t3.micro"
+  vpc_security_group_ids      = [aws_security_group.ec2.id]
+  subnet_id                   = data.aws_subnet.az-b.id
+  iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name # Required for Session Manager with less configuration
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = 8
+    delete_on_termination = true
+
+  }
+  tags = {
+    Name = "${local.project_name}-az-b"
+  }
+
+  user_data = <<-EOT
+  #!/bin/bash
+  sudo -i
+  sudo yum install -y amazon-efs-utils
+  mkdir /data
+  sudo mount -t efs -o tls ${aws_efs_file_system.this.id}:/ /data
+  echo "$(date) Nina 2 estive aqui" >> /data/nina.log
+  echo "$(date) Nina 2 estive aqui" >> /data/nina2.log
+  EOT
 
 }
