@@ -16,3 +16,9 @@ mkdir data
 sudo mount -t efs -o tls ${efs-id}:/ data
 date >> data/nina.log 
 ```
+
+Architecture:
+
+![alt](img/project_architecture.png)
+
+https://app.excalidraw.com/s/5fm5shfM4xL/89QnsBTG10t
