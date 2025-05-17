@@ -4,5 +4,8 @@ resource "aws_efs_file_system" "this" {
   encrypted              = true
   throughput_mode        = "bursting"
   availability_zone_name = "us-east-1a" # Single AZ!
+  tags = {
+    Name = "${local.project_name}-efs"
+  }
   # Not usage of lifecycle!
 }
