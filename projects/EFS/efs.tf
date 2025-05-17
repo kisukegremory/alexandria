@@ -25,15 +25,21 @@ resource "aws_efs_file_system" "this" {
   performance_mode       = "generalPurpose"
   encrypted              = true
   throughput_mode        = "bursting"
-  availability_zone_name = "us-east-1a" # Single AZ!
+#   availability_zone_name = "us-east-1a" # Single AZ! if applied we can just mount on the same AZ
   tags = {
     Name = "${local.project_name}-efs"
   }
   # Not usage of lifecycle!
 }
 
-resource "aws_efs_mount_target" "first" {
+resource "aws_efs_mount_target" "az-a" {
   file_system_id  = aws_efs_file_system.this.id
-  subnet_id       = data.aws_subnet.first.id
+  subnet_id       = data.aws_subnet.az-a.id
+  security_groups = [aws_security_group.efs.id]
+}
+
+resource "aws_efs_mount_target" "az-b" {
+  file_system_id  = aws_efs_file_system.this.id
+  subnet_id       = data.aws_subnet.az-b.id
   security_groups = [aws_security_group.efs.id]
 }

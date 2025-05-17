@@ -2,7 +2,7 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet" "first" {
+data "aws_subnet" "az-a" {
   vpc_id = data.aws_vpc.default.id
   filter {
     name   = "availability-zone"
@@ -10,6 +10,13 @@ data "aws_subnet" "first" {
   }
 }
 
+data "aws_subnet" "az-b" {
+  vpc_id = data.aws_vpc.default.id
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1b"]
+  }
+}
 
 
 # # To Get My Public IP
