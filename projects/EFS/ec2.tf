@@ -28,12 +28,17 @@ data "aws_subnet" "first" {
 #   }
 # }
 
+data "aws_iam_role" "ec2_session_manager" {
+ name = "AWSEC2SystemManagerRole"
+}
+
 resource "aws_instance" "first" {
   ami = data.aws_ami.aws_ami.id
-  associate_public_ip_address = false
+  associate_public_ip_address = true # Required for Session Manager with less configuration
   instance_type = "t3.micro"
   vpc_security_group_ids = [aws_security_group.ec2.id]
   subnet_id = data.aws_subnet.first.id
+  iam_instance_profile = data.aws_iam_role.ec2_session_manager.name
   root_block_device {
     volume_type = "gp3"
     volume_size = 8
