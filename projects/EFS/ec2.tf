@@ -9,15 +9,6 @@ data "aws_ami" "aws_ami" {
   }
 }
 
-
-data "aws_subnet" "first" {
-  vpc_id = data.aws_vpc.default.id
-  filter {
-    name = "availability-zone"
-    values = ["us-east-1a"]
-  }
-}
-
 # resource "aws_ebs_volume" "first" {
 #   availability_zone = "us-east-1a"
 #   size              = 8
@@ -29,19 +20,33 @@ data "aws_subnet" "first" {
 # }
 
 data "aws_iam_role" "ec2_session_manager" {
- name = "AWSEC2SystemManagerRole"
+  name = "AWSEC2SystemManagerRole"
 }
 
+resource "aws_security_group" "ec2" {
+  name   = "${local.project_name}-ec2-sg"
+  vpc_id = data.aws_vpc.default.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "ec2-egress" {
+  security_group_id = aws_security_group.ec2.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = -1
+  to_port           = -1
+  ip_protocol       = "-1"
+}
+
+
 resource "aws_instance" "first" {
-  ami = data.aws_ami.aws_ami.id
+  ami                         = data.aws_ami.aws_ami.id
   associate_public_ip_address = true # Required for Session Manager with less configuration
-  instance_type = "t3.micro"
-  vpc_security_group_ids = [aws_security_group.ec2.id]
-  subnet_id = data.aws_subnet.first.id
-  iam_instance_profile = data.aws_iam_role.ec2_session_manager.name
+  instance_type               = "t3.micro"
+  vpc_security_group_ids      = [aws_security_group.ec2.id]
+  subnet_id                   = data.aws_subnet.first.id
+  iam_instance_profile        = data.aws_iam_role.ec2_session_manager.name # Required for Session Manager with less configuration
   root_block_device {
-    volume_type = "gp3"
-    volume_size = 8
+    volume_type           = "gp3"
+    volume_size           = 8
     delete_on_termination = true
 
   }
