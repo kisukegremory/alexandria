@@ -9,20 +9,6 @@ data "aws_ami" "aws_ami" {
   }
 }
 
-# resource "aws_ebs_volume" "first" {
-#   availability_zone = "us-east-1a"
-#   size              = 8
-#   type = "gp3"
-
-#   tags = {
-#     Name = "${local.project_name}-first"
-#   }
-# }
-
-data "aws_iam_role" "ec2_session_manager" {
-  name = "AWSEC2SystemManagerRole"
-}
-
 resource "aws_security_group" "ec2" {
   name   = "${local.project_name}-ec2-sg"
   vpc_id = data.aws_vpc.default.id

@@ -21,11 +21,11 @@ resource "aws_vpc_security_group_egress_rule" "efs-egress" {
 }
 
 resource "aws_efs_file_system" "this" {
-  creation_token         = local.project_name
-  performance_mode       = "generalPurpose"
-  encrypted              = true
-  throughput_mode        = "bursting"
-#   availability_zone_name = "us-east-1a" # Single AZ! if applied we can just mount on the same AZ
+  creation_token   = local.project_name
+  performance_mode = "generalPurpose"
+  encrypted        = true
+  throughput_mode  = "bursting"
+  #   availability_zone_name = "us-east-1a" # Single AZ! if applied we can just mount on the same AZ
   tags = {
     Name = "${local.project_name}-efs"
   }
