@@ -1,6 +1,6 @@
 # N8N na AWS com terraform!
 
-Vamos apresentar 2 formas de setup dependendo do que você já tiver, nos baseando nessa arquitetura aqui:
+Nos baseando na arquitetura abaixo, exportaremos um target group para nosso load balancer e importaremos o security group dele para fechar o tráfego inbound só pra ele:
 
 ![alt text](images/image.png)
 
@@ -13,13 +13,17 @@ Precisamos só prover um target group para que você possa conectar um listener 
 - Auto Scalling Group + Schedules: para desligar nosso projeto fora dos horários úteis que não estivermos trabalhando para economizar um pouco a mais!
 - Target Group: para que todas nossas instâncias estejam mapeadas no mesmo lugar, e aí só apontar um listener do nosso load balancer para ele!
 
-## O que preciso configurar para encaixar na minha infraestrutura?
 
-- Configurar as subnets: aqui eu estou utilizando a padrão A em north virginia, caso sua infra já esteja nessa região já vai funcionar, se não, só mudar a região no provider para a sua ex: ohio (us-east-2) que ele pegará a padrão de lá, caso não esteja na vpc padrão, será necessário setup manual mesmo.
-
-
-Buscaremos realizar a integração do N8N de forma segura pronta para plugar na sua cloud AWS em um load balancer já existente, portanto o que iremos construir e por que fizemos dessa forma?
-
-O que é necessário ter anterior ao nosso terraform?
+# O que é necessário ter anterior ao nosso terraform?
 - Já ter criado dominio criado na AWS (route 53) (em menos de 5 mins você compra seu dominio lá ex: gatosedados.com)
 - Um certificado ssl/tls no via AWS ACM certificate (é rapidinho, só colocar o seu dominio lá e tambem o *.seudominio.com)
+
+# O que preciso alterar no terraform?
+- Literalmente só o id do security group do seu load balancer nas variáveis
+- Host name/subdominio/DNS em que irá hospedar o serviço, ex: workflows.gatosedados.com
+
+# O que posso alterar?
+- VPC e subnet em que o projeto será deployado (necessário ajustar EC2 AutoScalling e EFS)
+- Variáveis de ambiente do N8N (no user-data do template ec2)
+- Tamanho da instância e número de instâncias (ec2)
+- 
