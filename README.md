@@ -1,3 +1,7 @@
-# Data Enginnering Projects
+# Alexandria
 
-Armazenar vários projetos no mesmo repositório como forma de facilitar o controle de versionamento e disponibilização para o público
+Minha biblioteca de conhecimentos pessoais!
+
+Embora não tenha meus projetos legados de outros repositórios, tenho como objetivo estruturar tudo que sei de cloud, engenharia de dados, desenvolvimento e etc em um lugar só.
+
+Ainda não encontrei a organização mais satisfatória, mas estamos caminhando para isso!
