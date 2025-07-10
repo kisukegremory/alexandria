@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket         = "nina-terraform-tfstates"
-    key            = "ecs-cluster.tfstate"
+    key            = "services/demo-nginx/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "nina-terraform-tfstates-lock"
     encrypt        = true
