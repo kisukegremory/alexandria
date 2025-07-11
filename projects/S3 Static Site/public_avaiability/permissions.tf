@@ -7,7 +7,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_policy" "my_public_bucket_policy" {
+resource "aws_s3_bucket_policy" "this" {
   bucket = data.terraform_remote_state.bucket.outputs.bucket_id
   policy = jsonencode({
     Version = "2012-10-17",
@@ -23,4 +23,6 @@ resource "aws_s3_bucket_policy" "my_public_bucket_policy" {
       }
     ]
   })
+
+  depends_on = [ aws_s3_bucket_public_access_block.this ]
 }

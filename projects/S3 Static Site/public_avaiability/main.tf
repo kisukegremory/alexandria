@@ -27,6 +27,8 @@ resource "aws_s3_bucket_website_configuration" "this" {
   index_document {
     suffix = "index.html"
   }
+
+  depends_on = [ aws_s3_bucket_policy.this, aws_s3_bucket_public_access_block.this ]
 }
 
 
