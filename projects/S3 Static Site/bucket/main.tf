@@ -28,6 +28,7 @@ resource "random_string" "this" {
 
 resource "aws_s3_bucket" "this" {
   bucket = "nina-static-${random_string.this.result}"
+  force_destroy = true
 }
 
 
@@ -37,4 +38,8 @@ output "bucket_name" {
 
 output "bucket_arn" {
   value = aws_s3_bucket.this.arn
+}
+
+output "bucket_id" {
+  value = aws_s3_bucket.this.id
 }
