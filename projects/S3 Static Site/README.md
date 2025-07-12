@@ -1,10 +1,13 @@
 # Site Estático com S3
 
-# Quero usar, como faço?
+# Bucket Público (S3 Website URL)
 1. Tenha as credenciais da AWS setadas no seu ambiente
 2. Rode o `make complete-setup`, só isso, ele irá orchestrar os terraforms, subir o html, liberar acesso ao bucket e gerar a url no final para acesso :D
 3. Para destruir tudo só rodar o `make complete-destroy`
 
+# CloudFront + Bucket público (Http Origin)
+
+# CloudFront + Bucket Privado (S3 Origin)
 
 
 # Notas para criar o projeto
