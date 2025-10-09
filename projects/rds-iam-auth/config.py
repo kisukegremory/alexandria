@@ -1,0 +1,5 @@
+ENDPOINT="rds-iam-auth.cjkyo8i8kqlx.us-east-2.rds.amazonaws.com"
+PORT="5432"
+USER="iam_auth"
+REGION="us-east-2"
+DBNAME="postgres"
