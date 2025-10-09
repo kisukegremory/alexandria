@@ -7,7 +7,7 @@ from config import ENDPOINT, PORT, USER, REGION, DBNAME
 
 
 #gets the credentials from .aws/credentials
-session = boto3.Session(profile_name='nina', region_name=REGION)
+session = boto3.Session(region_name=REGION)
 client = session.client('rds')
 
 

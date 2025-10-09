@@ -14,7 +14,7 @@ engine = create_engine(
 # Each connect will get a new token
 @event.listens_for(engine, "do_connect")
 def provide_token(dialect, conn_rec, cargs, cparams):
-    session = boto3.Session(profile_name='nina', region_name=REGION)
+    session = boto3.Session(region_name=REGION)
     client = session.client('rds')
     token = client.generate_db_auth_token(DBHostname=ENDPOINT, Port=PORT, DBUsername=USER, Region=REGION)
     cparams["password"] = token
