@@ -1,0 +1,27 @@
+// 1. O Receiver OTLP (Ouvinte)
+// Ouve as métricas que nossa aplicação envia via OTLP.
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  // CORREÇÃO: A saída agora aponta para o INPUT do nosso novo "adaptador".
+  output {
+    metrics = [otelcol.exporter.prometheus.local.input]
+  }
+}
+
+// 2. O Exporter Prometheus (A Ponte/Adaptador) - COMPONENTE NOVO!
+// Este componente recebe dados OTLP e os encaminha no formato Prometheus.
+otelcol.exporter.prometheus "local" {
+  // A saída dele (forward_to) aponta para o destino final (o remote_write).
+  forward_to = [prometheus.remote_write.local_prometheus.receiver]
+}
+
+// 3. O Remote Write (O Remetente)
+// Envia os dados já convertidos para o nosso servidor Prometheus.
+prometheus.remote_write "local_prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
