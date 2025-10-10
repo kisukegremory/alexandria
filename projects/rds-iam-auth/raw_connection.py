@@ -1,12 +1,8 @@
-
 import psycopg2
 import boto3
 import time
 from config import ENDPOINT, PORT, USER, REGION, DBNAME
 
-
-
-#gets the credentials from .aws/credentials
 session = boto3.Session(region_name=REGION)
 client = session.client('rds')
 
@@ -26,4 +22,3 @@ def ping_server(conn):
 while True:
     ping_server(conn)
     time.sleep(1)
-                    

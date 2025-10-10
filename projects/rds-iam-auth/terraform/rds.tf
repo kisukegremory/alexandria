@@ -18,7 +18,7 @@ resource "aws_db_instance" "this" {
   password               = "alexandria"
   publicly_accessible    = true
   vpc_security_group_ids = [aws_security_group.this.id]
-  final_snapshot_identifier = "${local.project_name}-final-snapshot"
+  skip_final_snapshot = true
   db_subnet_group_name   = aws_db_subnet_group.this.name
   apply_immediately      = true
   iam_database_authentication_enabled = true # Our little project's Star!
