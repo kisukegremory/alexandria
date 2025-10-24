@@ -1,0 +1,2 @@
+Documentação para expandir as funcionalidades, como o arquivo .sqlfluff que pode ser um config do repositório, ou o lint de diretórios
+https://docs.sqlfluff.com/en/stable/gettingstarted.html#installing-sqlfluff
