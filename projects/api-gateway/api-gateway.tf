@@ -4,22 +4,31 @@ resource "aws_api_gateway_rest_api" "http_api" {
   description = "API Gateway com HTTP Proxy para um endpoint externo"
 }
 
-resource "aws_api_gateway_deployment" "this" {
+# resource "aws_api_gateway_deployment" "this" {
+#   rest_api_id = aws_api_gateway_rest_api.http_api.id
+#   triggers = {
+#       redeployment = sha1(jsonencode([
+#       aws_api_gateway_resource.external_resource.id,
+#       aws_api_gateway_integration.lambda.id
+#       ]))
+#   }
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+# resource "aws_api_gateway_stage" "this" {
+#   deployment_id = aws_api_gateway_deployment.this.id
+#   rest_api_id   = aws_api_gateway_rest_api.http_api.id
+#   stage_name    = "dev"
+# }
+
+
+resource "aws_api_gateway_authorizer" "cognito" {
+  name = "${local.project_name}-cognito-authorizer"
   rest_api_id = aws_api_gateway_rest_api.http_api.id
-  triggers = {
-      redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.external_resource.id,
-      aws_api_gateway_integration.lambda.id
-      ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_api_gateway_stage" "this" {
-  deployment_id = aws_api_gateway_deployment.this.id
-  rest_api_id   = aws_api_gateway_rest_api.http_api.id
-  stage_name    = "dev"
+  type = "COGNITO_USER_POOLS"
+  provider_arns = [aws_cognito_user_pool.this.arn]
+  identity_source = "method.request.header.Authorization"
 }
