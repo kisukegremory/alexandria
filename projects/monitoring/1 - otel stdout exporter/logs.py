@@ -1,21 +1,19 @@
 from fastapi import FastAPI
 import logging
-from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggingHandler, LoggerProvider
 from opentelemetry.sdk._logs.export import ConsoleLogExporter, BatchLogRecordProcessor
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
-
+from os import linesep
 
 def setup_logs():
     log_provider = LoggerProvider()
-    set_logger_provider(log_provider)
 
-    console_exporter = ConsoleLogExporter()
+    console_exporter = ConsoleLogExporter(
+        formatter=lambda record: record.to_json().encode('utf-8').decode('unicode_escape') + linesep
+    )
     batch_processor = BatchLogRecordProcessor(console_exporter)
     log_provider.add_log_record_processor(batch_processor)
     logger_handler = LoggingHandler(logger_provider=log_provider)
 
-    # 2. Obtemos o logger que queremos instrumentar (ex: o raiz)
     root_logger = logging.getLogger()
     
     # 3. Definimos o nível de log
