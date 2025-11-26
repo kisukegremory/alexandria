@@ -3,4 +3,4 @@ Basicamente para iniciarmos um projeto em golang fazemos o uso do `go mod init '
 
 Para baixar uma dependência que já está presente no código basta digita `go mod tidy`
 
-Para rodar o programa basta estar na pasta em que os arquivos golang estão e rodar `go run .`
+Para rodar o programa basta estar na pasta em que os arquivos golang estão e rodar `go run .
