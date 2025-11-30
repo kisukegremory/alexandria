@@ -1,31 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 )
 
 func main() {
 	api := http.NewServeMux()
-	api.HandleFunc("/", BasicHandler)
+	api.HandleFunc("/health", HealthHandler)
+	log.Println("Serving api at port :8080")
 	log.Fatal(http.ListenAndServe(":8080", api))
 }
 
-func BasicHandler(w http.ResponseWriter, r *http.Request) {
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	data := BaseResponse{StatusCode: 200, Data: "Nina Send OK"}
+	w.Header().Set("Content-Type", "application/json") // Requer ser setado antes do write header se não é sobrescrito (??)
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Servido, bem servido tal qual nininha")
-
+	json.NewEncoder(w).Encode(data) // Cria um encoder para o io.writer e encoda!
+	log.Println(r.Host, r.Method, data)
 }
 
-// type User struct {
-// 	ID    int    `json:"id"`
-// 	Name  string `json:"name"`
-// 	Email string `json:"email"`
-// }
-
-// var users []User = []User{
-// 	{ID: 1, Name: "Nina", Email: "Nina@cobol.com"},
-// 	{ID: 2, Name: "julio", Email: "rato@cobol.com"},
-// 	{ID: 3, Name: "cocoricó", Email: "ximira@cobol.com"},
-// }
+type BaseResponse struct {
+	StatusCode int    `json:"status_code"`
+	Data       string `json:"data"`
+}
