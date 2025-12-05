@@ -12,11 +12,13 @@ FROM golang:1.25.4-alpine AS builder
 WORKDIR /build
 COPY . .
 RUN go mod download
-RUN CGO_ENABLED=0 go build -o main . # CGO seria usado em caso de bibliotecas externas e para o scratch isso não funciona e requer desabilitar
+# CGO seria usado em caso de bibliotecas externas e para o scratch isso não funciona e requer desabilitar
+RUN CGO_ENABLED=0 go build -o main .
 
 FROM scratch
 WORKDIR /app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ # Necessário para validação TLS, se não tiver, dará erro ao conectar no SQS
+# Necessário para validação TLS, se não tiver, dará erro ao conectar no SQS
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /build/main /app/main
 EXPOSE 8080
 CMD [ "/app/main" ]
