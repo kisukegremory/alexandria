@@ -1,0 +1,12 @@
+services:
+  api:
+    env_file: .env
+    build:
+      context: ./api
+    environment:
+      - QUEUE_URL=${QUEUE_URL}
+      - AWS_PROFILE=${AWS_PROFILE}
+    ports:
+      - 8080:8080
+    volumes:
+      - ~/.aws:/root/.aws:ro
