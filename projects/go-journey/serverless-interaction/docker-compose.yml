@@ -6,6 +6,7 @@ services:
     environment:
       - QUEUE_URL=${QUEUE_URL}
       - AWS_PROFILE=${AWS_PROFILE}
+      - HOME=/root
     ports:
       - 8080:8080
     volumes:
