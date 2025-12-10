@@ -7,7 +7,7 @@
 # CMD [ "./main" ]
 
 
-FROM golang:1.25.4-alpine AS builder
+FROM golang:1.25.5-alpine AS builder
 # RUN apk add --no-cache ca-certificates # Seria necessário se o alpine já não precarregasse os ca-certificates, mas felizmente a versão mais atual já possui
 WORKDIR /build
 COPY . .
