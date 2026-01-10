@@ -1,17 +1,25 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kisukegremory/alexandria/obs-lab/backend/internal/handlers"
+	"github.com/kisukegremory/alexandria/obs-lab/backend/internal/telemetry"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+
+	shutdown := telemetry.InitTracer()
+	defer shutdown(context.Background())
+
 	r := gin.Default()
+	r.Use(otelgin.Middleware("credit-api-server")) // Middleware "auto instrumentalizado"
 
 	creditHandler := handlers.NewCreditHandler()
 
