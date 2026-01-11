@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # 1. OTel Collector (O Porteiro)
   otel-collector:
@@ -21,6 +19,14 @@ services:
     ports:
       - "3200:3200"
       - "4317"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command: [--config.file=/etc/prometheus/prometheus.yaml]
+    volumes:
+      - ./infra/local/config/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "9090:9090"
 
   # 3. Grafana (Visualização)
   grafana:

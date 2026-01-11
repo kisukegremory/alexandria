@@ -10,10 +10,12 @@ processors:
   batch:
 
 exporters:
-  otlp: # Envia para o Tempo
+  otlp/tempo: # Envia para o Tempo
     endpoint: "tempo:4317"
     tls:
       insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:8889" # o collector está abrindo a porta 8889 para scrape
   debug:
     verbosity: detailed
 
@@ -22,4 +24,8 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, debug]
+      exporters: [otlp/tempo, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, debug]
