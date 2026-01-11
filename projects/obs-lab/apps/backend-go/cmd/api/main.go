@@ -15,8 +15,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	shutdown := telemetry.InitTracer()
-	defer shutdown(context.Background())
+	shutdownTracer := telemetry.InitTracer()
+	defer shutdownTracer(context.Background())
+
+	shutdownMeter := telemetry.InitMeter()
+	defer shutdownMeter(context.Background())
 
 	r := gin.Default()
 	r.Use(otelgin.Middleware("credit-api-server")) // Middleware "auto instrumentalizado"

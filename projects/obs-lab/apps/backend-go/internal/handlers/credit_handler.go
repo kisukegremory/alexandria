@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"log/slog"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -10,13 +11,28 @@ import (
 	"github.com/kisukegremory/alexandria/obs-lab/backend/internal/models"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 )
 
-type CreditHandler struct{}
+type CreditHandler struct {
+	simulationCounter metric.Int64Counter
+}
 
 func NewCreditHandler() *CreditHandler {
-	return &CreditHandler{}
+	meter := otel.Meter("credit-service-go")
+	counter, err := meter.Int64Counter(
+		"credit.simulations.count",
+		metric.WithDescription("Total number os credit simulations"),
+		metric.WithUnit("{simulation}"),
+	)
+	if err != nil {
+		slog.Error("Problemas ao criar counter")
+		panic(err)
+	}
+	return &CreditHandler{
+		simulationCounter: counter,
+	}
 }
 
 func (h *CreditHandler) PostSimulation(c *gin.Context) {
@@ -48,10 +64,12 @@ func (h *CreditHandler) PostSimulation(c *gin.Context) {
 			Score:  score,
 			Limit:  req.Amount * 1.5,
 		}
+		h.simulationCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("status", "approved")))
 		c.JSON(http.StatusOK, resp)
 		return
 	}
 
+	h.simulationCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("status", "denied")))
 	c.JSON(http.StatusForbidden, models.CreditResponse{
 		Status: "reprovado",
 		Score:  score,
@@ -65,13 +83,19 @@ func (h *CreditHandler) calculateScore(ctx context.Context, cpf string) int {
 	_, span := tracer.Start(ctx, "check-serasa-score")
 	defer span.End()
 
+	score := rand.Intn(351) + 600
+
 	maskedCPF := "INVALID"
 	if len(cpf) > 2 {
 		maskedCPF = "****-" + cpf[len(cpf)-2:]
 	}
 
-	span.SetAttributes(attribute.String("app.cpf_masked", maskedCPF))
+	span.SetAttributes(
+		attribute.String("app.cpf_masked", maskedCPF),
+		attribute.Int("app.generated_score", score),
+	)
 
-	time.Sleep(150 * time.Millisecond)
-	return 850
+	delay := time.Duration((rand.Intn(100) + 100) * int(time.Millisecond))
+	time.Sleep(delay)
+	return score
 }
