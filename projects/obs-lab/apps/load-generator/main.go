@@ -14,11 +14,13 @@ import (
 )
 
 const (
-	TargetUrl   = "http://localhost:8080/simulacao"
+	// TargetUrl   = "http://localhost:8080/simulacao"
 	Concurrency = 5
 	MinSleep    = 10 * time.Millisecond
 	MaxSleep    = 20 * time.Millisecond
 )
+
+var TargetUrl string
 
 type SimulationRequest struct {
 	CPF    string  `json:"cpf"`
@@ -35,6 +37,8 @@ func main() {
 	fmt.Printf("🛑 Pressione CTRL+C para parar.\n\n")
 
 	var wg sync.WaitGroup
+
+	TargetUrl = getTargetURL()
 
 	quit := make(chan bool)
 
@@ -99,4 +103,12 @@ func sendRequest(data SimulationRequest) int {
 	defer resp.Body.Close()
 	return resp.StatusCode
 
+}
+
+func getTargetURL() string {
+	url := os.Getenv("API_ENDPOINT")
+	if url == "" {
+		url = "http://localhost:8080/simulacao" // fallback
+	}
+	return url
 }

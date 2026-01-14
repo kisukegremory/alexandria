@@ -51,6 +51,14 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
     depends_on:
       - otel-collector
+  load-generator:
+    build:
+      context: ./apps/load-generator
+      dockerfile: Dockerfile
+    environment:
+      - API_ENDPOINT=http://backend-go:8080/simulacao
+    depends_on:
+      - backend-go
 
 networks:
   default:
