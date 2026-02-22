@@ -15,9 +15,9 @@ import (
 
 const (
 	// TargetUrl   = "http://localhost:8080/simulacao"
-	Concurrency = 5
+	Concurrency = 2
 	MinSleep    = 10 * time.Millisecond
-	MaxSleep    = 20 * time.Millisecond
+	MaxSleep    = 1000 * time.Millisecond
 )
 
 var TargetUrl string
