@@ -26,7 +26,7 @@ resource "digitalocean_kubernetes_cluster" "this" {
 
   node_pool {
     name       = "pool-worker-nodes"
-    size       = "s-1vcpu-2gb"
+    size       = "s-2vcpu-4gb" # Necessário para rodar o helm prometheus + grafana
     node_count = 2
   }
 }
