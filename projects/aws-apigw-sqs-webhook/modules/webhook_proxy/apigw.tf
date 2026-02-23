@@ -45,6 +45,8 @@ resource "aws_api_gateway_integration_response" "status_200" {
   resource_id = aws_api_gateway_resource.this.id
   http_method = aws_api_gateway_method.this.http_method
   status_code = aws_api_gateway_method_response.status_200.status_code
+
+  depends_on = [aws_api_gateway_integration.this]
 }
 
 resource "aws_api_gateway_deployment" "this" {
