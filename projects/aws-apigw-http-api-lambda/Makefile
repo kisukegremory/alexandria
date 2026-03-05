@@ -13,16 +13,14 @@ ensure-artifacts-dir:
 
 build: ensure-artifacts-dir
 	@echo "🔥 Building binaries for provided.al2023 (arm64)..."
-	
-	# --- Authorizer ---
-	@env GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-		go build -ldflags="-s -w" -o artifacts/authorizer/bootstrap src/authorizer/main.go
-	# Zipando com caminho relativo para não criar pastas desnecessárias dentro do zip
-	@cd artifacts/authorizer && zip -q -r ../authorizer.zip bootstrap
-	
+
 	# --- Worker ---
-	@env GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-		go build -ldflags="-s -w" -o artifacts/worker/bootstrap src/worker/main.go
+	@cd src/worker && \
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
+	go build -tags lambda.norpc -ldflags="-s -w" \
+	-o ../../artifacts/worker/bootstrap main.go
+	
+	# Zipando (precisa entrar na pasta artifacts para o bootstrap ficar na raiz do zip)
 	@cd artifacts/worker && zip -q -r ../worker.zip bootstrap
 	
 	@echo "✅ Build complete! Artifacts ready in /artifacts"
