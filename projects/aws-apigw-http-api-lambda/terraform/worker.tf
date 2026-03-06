@@ -16,7 +16,7 @@ resource "aws_lambda_permission" "gw_invoke_worker" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.worker.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/ingest"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/ingest*"
 }
 
 # --- Integration (Worker) ---
@@ -37,6 +37,14 @@ resource "aws_apigatewayv2_route" "ingest" {
   target    = "integrations/${aws_apigatewayv2_integration.worker.id}"
 
   authorization_type = "NONE"
-  # authorization_type = "CUSTOM"
-  # authorizer_id      = aws_apigatewayv2_authorizer.auth.id
 }
+
+resource "aws_apigatewayv2_route" "ingest_auth" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /ingest-auth"
+  target    = "integrations/${aws_apigatewayv2_integration.worker.id}"
+
+  authorization_type = "CUSTOM"
+  authorizer_id      = aws_apigatewayv2_authorizer.auth.id
+}
+
