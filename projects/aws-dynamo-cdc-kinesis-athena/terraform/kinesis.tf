@@ -22,7 +22,7 @@ data "aws_iam_policy_document" "firehose_policy" {
       "s3:ListBucketMultipartUploads",
     ]
     resources = [
-      aws_s3_bucket.datalake.arn,
+      aws_s3_bucket.this.arn,
     ]
   }
   statement {
@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "firehose_policy" {
       "s3:PutObject"
     ]
     resources = [
-      "${aws_s3_bucket.datalake.arn}/*"
+      "${aws_s3_bucket.this.arn}/*"
     ]
   }
 
@@ -46,8 +46,8 @@ data "aws_iam_policy_document" "firehose_policy" {
     ]
     resources = [
       "arn:aws:glue:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:catalog",
-      aws_glue_catalog_database.analytics.arn,
-      aws_glue_catalog_table.dynamo_events.arn
+      aws_glue_catalog_database.this.arn,
+      aws_glue_catalog_table.this.arn
     ]
   }
 }
@@ -65,7 +65,7 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
   destination = "extended_s3"
   extended_s3_configuration {
     role_arn   = aws_iam_role.firehose.arn
-    bucket_arn = aws_s3_bucket.datalake.arn
+    bucket_arn = aws_s3_bucket.this.arn
 
     # particionamento (avaliar conforme o volume de dados, pode ser interessante particionar por hora ou dia)
     prefix              = "${local.data_prefix}/ano=!{timestamp:yyyy}/mes=!{timestamp:MM}/dia=!{timestamp:dd}/"
@@ -77,8 +77,8 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
     data_format_conversion_configuration {
       schema_configuration {
-        database_name = aws_glue_catalog_database.analytics.name
-        table_name    = aws_glue_catalog_table.dynamo_events.name
+        database_name = aws_glue_catalog_database.this.name
+        table_name    = aws_glue_catalog_table.this.name
         role_arn      = aws_iam_role.firehose.arn
       }
 
