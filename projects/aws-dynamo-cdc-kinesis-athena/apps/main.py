@@ -3,11 +3,10 @@ import uuid
 import time
 import random
 
-# Usando o mesmo profile e região definidos no seu providers.tf
 session = boto3.Session(profile_name='nina', region_name='us-east-1')
 dynamodb = session.resource('dynamodb')
 
-table_name = 'alexandria-user-table'
+table_name = 'dynamo-cdc-to-athena-user-table'
 table = dynamodb.Table(table_name)
 
 def generate_user():
