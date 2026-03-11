@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "user_source" {
-  name         = "alexandria-user-table"
+resource "aws_dynamodb_table" "this" {
+  name         = "${local.project_name}-user-table"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "user_id"
   attribute {

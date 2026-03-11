@@ -1,6 +1,4 @@
-# ------------------------------------------------------------------------------
-# IAM ROLE PARA O EVENTBRIDGE PIPES
-# ------------------------------------------------------------------------------
+
 data "aws_iam_policy_document" "pipe_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -12,7 +10,7 @@ data "aws_iam_policy_document" "pipe_assume_role" {
 }
 
 resource "aws_iam_role" "pipe_role" {
-  name               = "alexandria-pipe-role-${local.project_name}"
+  name               = "${local.project_name}-pipe-role"
   assume_role_policy = data.aws_iam_policy_document.pipe_assume_role.json
 }
 
@@ -25,7 +23,7 @@ data "aws_iam_policy_document" "pipe_policy" {
       "dynamodb:GetShardIterator",
       "dynamodb:ListStreams"
     ]
-    resources = [aws_dynamodb_table.user_source.stream_arn]
+    resources = [aws_dynamodb_table.this.stream_arn]
   }
 
   statement {
@@ -33,23 +31,23 @@ data "aws_iam_policy_document" "pipe_policy" {
       "firehose:PutRecord",
       "firehose:PutRecordBatch"
     ]
-    resources = [aws_kinesis_firehose_delivery_stream.to_datalake.arn]
+    resources = [aws_kinesis_firehose_delivery_stream.this.arn]
   }
 }
 
 resource "aws_iam_role_policy" "pipe_policy" {
-  name   = "alexandria-pipe-policy"
+  name   = "${local.project_name}-pipe-policy"
   role   = aws_iam_role.pipe_role.id
   policy = data.aws_iam_policy_document.pipe_policy.json
 }
 
 
-resource "aws_pipes_pipe" "dynamo_to_firehose" {
-  name     = "alexandria-dynamo-cdc-to-datalake"
+resource "aws_pipes_pipe" "this" {
+  name     = "${local.project_name}-pipe"
   role_arn = aws_iam_role.pipe_role.arn
 
-  source = aws_dynamodb_table.user_source.stream_arn
-  target = aws_kinesis_firehose_delivery_stream.to_datalake.arn
+  source = aws_dynamodb_table.this.stream_arn
+  target = aws_kinesis_firehose_delivery_stream.this.arn
 
   source_parameters {
     dynamodb_stream_parameters {

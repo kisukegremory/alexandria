@@ -1,10 +1,3 @@
-
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
-
-# ------------------------------------------------------------------------------
-# IAM ROLE PARA O FIREHOSE
-# ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "firehose_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -17,14 +10,10 @@ data "aws_iam_policy_document" "firehose_assume_role" {
 
 
 resource "aws_iam_role" "firehose" {
-  name               = "alexandria-firehose-role-${local.project_name}"
+  name               = "${local.project_name}-firehose-role"
   assume_role_policy = data.aws_iam_policy_document.firehose_assume_role.json
 }
 
-
-# ------------------------------------------------------------------------------
-# PERMISSÕES DO FIREHOSE (S3 e Glue)
-# ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "firehose_policy" {
   # Permissão para gravar e listar no S3
   statement {
@@ -64,15 +53,15 @@ data "aws_iam_policy_document" "firehose_policy" {
 }
 
 resource "aws_iam_role_policy" "firehose" {
-  name   = "alexandria-firehose-policy"
+  name   = "${local.project_name}-firehose-policy"
   role   = aws_iam_role.firehose.id
   policy = data.aws_iam_policy_document.firehose_policy.json
 }
 
 
 
-resource "aws_kinesis_firehose_delivery_stream" "to_datalake" {
-  name        = "alexandria-dynamo-to-s3-parquet"
+resource "aws_kinesis_firehose_delivery_stream" "this" {
+  name        = "${local.project_name}-firehose-delivery-${random_id.bucket_suffix.hex}"
   destination = "extended_s3"
   extended_s3_configuration {
     role_arn   = aws_iam_role.firehose.arn

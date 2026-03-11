@@ -1,12 +1,12 @@
 # O Database no Athena/Glue
-resource "aws_glue_catalog_database" "analytics" {
-  name = "alexandria_analytics"
+resource "aws_glue_catalog_database" "this" {
+  name = "${local.project_name}-db"
 }
 
 # A Tabela que define o Schema para o Firehose (Contrato)
-resource "aws_glue_catalog_table" "dynamo_events" {
+resource "aws_glue_catalog_table" "this" {
   name          = "user_events"
-  database_name = aws_glue_catalog_database.analytics.name
+  database_name = aws_glue_catalog_database.this.name
 
   table_type = "EXTERNAL_TABLE"
 
@@ -73,5 +73,5 @@ resource "aws_glue_catalog_table" "dynamo_events" {
 
 output "glue_database" {
   description = "O banco de dados do Glue/Athena"
-  value       = aws_glue_catalog_database.analytics.name
+  value       = aws_glue_catalog_database.this.name
 }

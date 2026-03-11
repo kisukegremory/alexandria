@@ -17,9 +17,5 @@ provider "aws" {
 }
 
 locals {
-  project_name = "dynamo-to-athena"
-}
-
-provider "random" {
-
+  project_name = "dynamo-cdc-to-athena"
 }
