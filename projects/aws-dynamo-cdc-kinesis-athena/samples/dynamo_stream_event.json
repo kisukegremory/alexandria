@@ -1,0 +1,50 @@
+{
+  "Records": [
+    {
+  "eventID": "4b2e69907a1a2c557e45ef590f9fd618",
+  "eventName": "MODIFY",
+  "eventVersion": "1.1",
+  "eventSource": "aws:dynamodb",
+  "awsRegion": "us-east-1",
+  "dynamodb": {
+    "ApproximateCreationDateTime": 1741653034,
+    "Keys": {
+      "user_id": {
+        "S": "b0d0-92ed-48d9-8b74-8325edffbe89"
+      }
+    },
+    "OldImage": {
+      "user_id": {
+        "S": "b0d0-92ed-48d9-8b74-8325edffbe89"
+      },
+      "name": {
+        "S": "User_4512"
+      },
+      "plan": {
+        "S": "FREE"
+      },
+      "is_active": {
+        "BOOL": true
+      }
+    },
+    "NewImage": {
+      "user_id": {
+        "S": "b0d0-92ed-48d9-8b74-8325edffbe89"
+      },
+      "name": {
+        "S": "User_4512"
+      },
+      "plan": {
+        "S": "STAFF_ENGINEER_PLAN"
+      },
+      "is_active": {
+        "BOOL": true
+      }
+    },
+    "SequenceNumber": "11110000000000000000000",
+    "SizeBytes": 218,
+    "StreamViewType": "NEW_AND_OLD_IMAGES"
+  }
+}
+  ]
+}
