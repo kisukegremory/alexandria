@@ -43,11 +43,11 @@ resource "aws_glue_catalog_table" "this" {
     "projection.dia.digits" = "2"
 
     # Mostra o formato final do S3
-    "storage.location.template" = "s3://${aws_s3_bucket.datalake.bucket}/${local.data_prefix}/ano=$${ano}/mes=$${mes}/dia=$${dia}"
+    "storage.location.template" = "s3://${aws_s3_bucket.this.bucket}/${local.data_prefix}/ano=$${ano}/mes=$${mes}/dia=$${dia}"
   }
 
   storage_descriptor {
-    location      = "s3://${aws_s3_bucket.datalake.bucket}/${local.data_prefix}/"
+    location      = "s3://${aws_s3_bucket.this.bucket}/${local.data_prefix}/"
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
 
