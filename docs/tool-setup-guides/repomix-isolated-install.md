@@ -9,3 +9,8 @@ Finalmente no repositório que quiser documentar, usar:
 ```
 npx repomix --style xml
 ```
+
+Ou de forma otimizada como alias:
+```
+alias doc-gen='npx repomix --style xml --ignore "**/.terraform.lock.hcl,**/.terraform/**,**/.venv/**,**/artifacts/**,go.sum"'
+```
