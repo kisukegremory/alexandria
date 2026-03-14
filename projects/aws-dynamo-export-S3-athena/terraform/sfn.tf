@@ -58,7 +58,7 @@ resource "aws_sfn_state_machine" "this" {
           TableArn     = aws_dynamodb_table.this.arn
           S3Bucket     = aws_s3_bucket.this.bucket
           S3Prefix     = "${local.data_prefix}/daily_dump/"
-          ExportFormat = "DYNAMODB_JSON"
+          ExportFormat = "ION" # Se for "DYNAMODB_JSON", virá aquele "S" para os tipos de dados. O ION é mais leve e fácil de consultar no Athena
         }
         End = true
       }

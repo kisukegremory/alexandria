@@ -23,7 +23,7 @@ plan: ## Roda o Terraform Plan
 
 apply: ## Roda o Terraform Apply (com auto-approve)
 	@echo "🚀 Aplicando infraestrutura..."
-	cd $(TF_DIR) && terraform apply -auto-approve
+	cd $(TF_DIR) && terraform apply
 
 destroy: ## Destrói toda a infraestrutura (com auto-approve)
 	@echo "💥 Destruindo infraestrutura..."

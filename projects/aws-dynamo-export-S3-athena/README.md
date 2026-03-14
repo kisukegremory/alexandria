@@ -34,3 +34,32 @@ E por fim, há o export incremental, como não preciso de near real time, é mai
 1. Criamos o schema no Glue Catalog para os dados exportados
 1. Criamos o Workgroup no Athena para as consultas (opcional, mas ajuda a isolar o projeto em si mesmo)
 1. Criamos a view no Athena para consultar os dados exportados com tratamento (ex: converter timestamp, lidar com dados nulos, etc)
+
+
+## Abordagens
+
+### Daily Snapshot Export
+Nesta abordagem, realizamos um Full Load todos os dias, exportando a tabela completa do DynamoDB para o S3 independentemente do que mudou.
+Prós:
+- Simplicidade Analítica: É trivial de consultar. Não precisamos lidar com lógicas complexas de CDC (Change Data Capture) ou deduplicação para saber o estado atual dos usuários.
+- Viagem no Tempo (Time Travel): Análises históricas são muito fáceis. "Como era a tabela no dia 15 do mês passado?" Basta apontar a query para a partição daquele dia específico.
+- Menos dependências: O Glue Crawler mapeia os arquivos por data naturalmente, reduzindo a complexidade de engenharia.
+
+Contras:
+
+- Custo Escalonável (O Maior Ofensor): Embora o custo de armazenamento no S3 possa ser mitigado com políticas de Lifecycle (Ex: deletar snapshots com mais de 30 dias), o custo de Exportação do DynamoDB ($0.10 por GB) não tem mitigação. Exportar 100GB todos os dias custará $300 dólares no mês apenas na taxa de exportação.
+- Tempo de Processamento: Exportar tabelas massivas leva muito mais tempo, o que pode atrasar a disponibilidade dos dados para o negócio
+- Armazenamento Redundante: A maioria dos dados provavelmente não mudou, então estamos pagando para exportar e armazenar dados idênticos repetidamente
+
+### Incremental Export
+Nesta abordagem, realizamos um único Full Load Inicial (Marco Zero) e, a partir de então, exportamos diariamente apenas os dados que sofreram mutação (INSERT, MODIFY, REMOVE) no período de 24 horas.
+Prós:
+
+- Eficiência Financeira Absoluta: É incrivelmente barato a longo prazo. Mesmo que a tabela tenha 1 TB, se apenas 100 MB de dados mudaram no dia, você pagará apenas a exportação desses 100 MB (frações de centavos)
+- Rapidez: O job de exportação do DynamoDB finaliza muito mais rápido, pois processa apenas o "Delta" dos logs do PITR
+
+**Contras**:
+- Complexidade na Reconciliação: O formato do arquivo Incremental é diferente do Full Load (ele traz o evento, com OldImage e NewImage)
+    - *Mitigação*: Consolidamos isso em camadas lógicas no Athena sem gastar com ETL
+        - Camada Bronze (Raw): Tabelas brutas separadas mapeando o Full Inicial e os Incrementais
+        - Camada Prata: Uma View híbrida (Window Function) que une a Bronze, ordena os eventos por data e deduplica, garantindo que as ferramentas de BI enxerguem apenas a versão mais recente e atualizada de cada registro
