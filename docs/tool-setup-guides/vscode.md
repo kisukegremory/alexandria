@@ -54,3 +54,29 @@ Abra o terminal (pode ser o próprio terminal integrado do VS Code) e rode este 
 ```bash
 sudo apt update && sudo apt install --only-upgrade code
 ```
+
+
+## Extensões Recomendadas
+
+**HashiCorp Terraform**
+*https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraform*
+
+Alem disso configure o auto lint do terraform fmt com:
+
+1. Aperte Ctrl + Shift + P para abrir a paleta de comandos.
+
+2. Digite Preferences: Open User Settings (JSON) e dê Enter (isso abre as configurações globais em formato de código).
+
+3. Adicione este bloco exato em qualquer lugar dentro das chaves principais {} do arquivo:
+```json
+  "[terraform]": {
+    "editor.defaultFormatter": "HashiCorp.terraform",
+    "editor.formatOnSave": true
+  }
+```
+
+Isso vai garantir que toda vez que você salvar um arquivo `.tf`, ele seja automaticamente formatado usando o `terraform fmt` da extensão, mantendo seu código limpo e padronizado sem esforço extra.
+
+**Terraform Link Docs**
+*https://marketplace.visualstudio.com/items?itemName=TylerHarris.terraform-link-docs*
+Simplesmente adiciona um atalho para abrir a documentação oficial do recurso que você está editando, super útil para consultas rápidas.
