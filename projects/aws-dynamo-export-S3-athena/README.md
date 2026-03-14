@@ -8,6 +8,7 @@ E por fim, há o export incremental, como não preciso de near real time, é mai
 
 ## Possíveis Custos
 - Exportação do DynamoDB para o S3: $0.10 por GB exportado (a ser otimizado com exportação incremental, onde só os dados novos ou modificados são exportados)
+- PITR do DynamoDB: $0.20 por GB por mês (varia de acordo com a região)
 - Armazenamento no S3: $0.023 por GB por mês (varia de acordo com a região e o tipo de armazenamento)
 - Consultas no Athena: $5 por TB de dados consultados (varia de acordo com a região)
 - Eventbridge Scheduler: Literalmente $0 (O Free Tier da AWS te dá 14 milhões de agendamentos por mês)
