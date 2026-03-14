@@ -1,9 +1,3 @@
-Esse é um padrão arquitetural de altíssimo nível para a sua biblioteca (Alexandria). Ter isso documentado de forma clara vai economizar horas de engenharia no futuro.
-
-Abaixo está a proposta de `README.md` completa, escrita com o foco pragmático e direto que esse tipo de infraestrutura exige. Você pode copiar e colar diretamente no seu arquivo `apps/README.md` ou na raiz do projeto.
-
----
-
 # 🏗️ Alexandria Pattern: Serverless No-Code CDC (DynamoDB to Athena)
 
 Este repositório contém um padrão arquitetural "Plug & Play" para extrair dados analíticos do DynamoDB (Change Data Capture - CDC) e enviá-á-los para um Data Lake no Amazon S3, consultável via Amazon Athena.
