@@ -33,9 +33,41 @@ data "aws_iam_policy_document" "sfn_policy" {
     actions = [
       "s3:PutObject",
       "s3:PutObjectAcl",
-      "s3:AbortMultipartUpload"
+      "s3:AbortMultipartUpload",
+      "s3:GetObject" # Athena usage
     ]
     resources = ["${aws_s3_bucket.this.arn}/*"]
+  }
+
+  statement {
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket"
+    ]
+    resources = [aws_s3_bucket.this.arn]
+  }
+
+  statement {
+    actions = [
+      "athena:StartQueryExecution",
+      "athena:GetQueryExecution" # Necessário por causa do ".sync" no Step Functions
+    ]
+    resources = [
+      "arn:aws:athena:*:*:workgroup/*" # Permite rodar no workgroup padrão ('primary')
+    ]
+  }
+
+  statement {
+    actions = [
+      "glue:GetDatabase",
+      "glue:GetTable",
+      "glue:UpdateTable"
+    ]
+    resources = [
+      "arn:aws:glue:*:*:catalog",
+      aws_glue_catalog_database.this.arn,
+      aws_glue_catalog_table.one_off.arn
+    ]
   }
 
   statement {
