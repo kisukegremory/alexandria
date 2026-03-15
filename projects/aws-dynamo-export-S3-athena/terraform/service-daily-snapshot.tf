@@ -4,39 +4,89 @@ resource "aws_sfn_state_machine" "daily_snapshot" {
   role_arn = aws_iam_role.sfn_role.arn
 
   definition = jsonencode({
-    Comment = "State machine to export DynamoDB table to S3 with clean Date partitions"
-    StartAt = "ExtractDate"
-
+    Comment = "Exporta DynamoDB, faz Polling até acabar, e roda o Glue Crawler",
+    StartAt = "ExtractDate",
     States = {
-      # PASSO 1: Corta a data suja (ISO 8601) e extrai apenas o YYYY-MM-DD
+
+      # PASSO 1: Formata a Data
       ExtractDate = {
-        Type = "Pass"
+        Type = "Pass",
         Parameters = {
-          # Corta pelo 'T' e pega o índice 0 do array resultante
           "clean_date.$" = "States.ArrayGetItem(States.StringSplit($$.Execution.StartTime, 'T'), 0)"
-        }
-        ResultPath = "$.formatted" # Salva o resultado temporariamente no JSON do processo
-        Next       = "ExportTable"
-      }
+        },
+        ResultPath = "$.formatted",
+        Next       = "StartExport"
+      },
 
-      # PASSO 2: Executa a exportação usando a data limpa que criamos no passo anterior
-      ExportTable = {
-        Type     = "Task"
-        Resource = "arn:aws:states:::aws-sdk:dynamodb:exportTableToPointInTime"
+      # PASSO 2: Inicia o Export (Assíncrono)
+      StartExport = {
+        Type     = "Task",
+        Resource = "arn:aws:states:::aws-sdk:dynamodb:exportTableToPointInTime",
         Parameters = {
-          TableArn = aws_dynamodb_table.this.arn
-          S3Bucket = aws_s3_bucket.this.bucket
-
-          # Injeta a variável limpa na string do caminho do S3
-          "S3Prefix.$" = "States.Format('events/daily_snapshot/dt={}/', $.formatted.clean_date)"
+          TableArn     = aws_dynamodb_table.this.arn
+          S3Bucket     = aws_s3_bucket.this.bucket
+          "S3Prefix.$" = "States.Format('events/daily_snapshot/dt={}/', $.formatted.clean_date)",
           ExportFormat = "ION"
-        }
+        },
+        ResultPath = "$.exportResult", # Salva o ExportArn aqui para usarmos depois
+        Next       = "WaitState"
+      },
+
+      # PASSO 3: Dorme por 2 minutos
+      WaitState = {
+        Type    = "Wait",
+        Seconds = 120,
+        Next    = "CheckExportStatus"
+      },
+
+      # PASSO 4: Pergunta o Status atual
+      CheckExportStatus = {
+        Type     = "Task",
+        Resource = "arn:aws:states:::aws-sdk:dynamodb:describeExport",
+        Parameters = {
+          "ExportArn.$" = "$.exportResult.ExportDescription.ExportArn"
+        },
+        ResultPath = "$.statusResult",
+        Next       = "IsExportDone"
+      },
+
+      # PASSO 5: Toma a decisão (O Switch/Case)
+      IsExportDone = {
+        Type = "Choice",
+        Choices = [
+          {
+            Variable     = "$.statusResult.ExportDescription.ExportStatus",
+            StringEquals = "COMPLETED",
+            Next         = "StartCrawler" # Se acabou, vai pro Crawler
+          },
+          {
+            Variable     = "$.statusResult.ExportDescription.ExportStatus",
+            StringEquals = "IN_PROGRESS",
+            Next         = "WaitState" # Se não acabou, volta a dormir
+          }
+        ],
+        Default = "ExportFailed" # Se for FAILED ou qualquer outra coisa, quebra.
+      },
+
+      # PASSO 6: Sucesso! Aciona o Crawler
+      StartCrawler = {
+        Type     = "Task",
+        Resource = "arn:aws:states:::aws-sdk:glue:startCrawler",
+        Parameters = {
+          Name = aws_glue_crawler.daily_export.name
+        },
         End = true
+      },
+
+      # PASSO DE ERRO
+      ExportFailed = {
+        Type  = "Fail",
+        Cause = "DynamoDB Export Falhou",
+        Error = "ExportFailedError"
       }
     }
   })
 }
-
 
 
 # IAM Role para o Crawler
@@ -87,8 +137,6 @@ resource "aws_glue_crawler" "daily_export" {
   database_name = aws_glue_catalog_database.this.name
   role          = aws_iam_role.glue_crawler_role.arn
 
-  # Agendamento nativo do Crawler para rodar todo dia às 02h15 UTC
-  schedule = "cron(15 2 * * ? *)"
 
   s3_target {
     # Aponta para a pasta raiz dos snapshots. O Crawler vai procurar as partições "dt=" aqui dentro.
@@ -107,19 +155,19 @@ resource "aws_glue_crawler" "daily_export" {
   })
 
   # Modo de recrawl para evitar custos desnecessários e acelerar o processo, lendo apenas o que é novo, requer atualização de schema "manual" para evitar que mudanças inesperadas no Dynamo atrapalhem as consultas no Athena
-  #   recrawl_policy {
-  #     # Garante o custo baixo lendo apenas o que é novo
-  #     recrawl_behavior = "CRAWL_NEW_FOLDERS_ONLY"
-  #   }
+  recrawl_policy {
+    # Garante o custo baixo lendo apenas o que é novo
+    recrawl_behavior = "CRAWL_NEW_FOLDERS_ONLY"
+  }
 
-  #   schema_change_policy {
-  #     update_behavior = "LOG"
-  #     delete_behavior = "LOG"
-  #   }
-
-  # Modo com update de schema automático, mas pode gerar custos maiores no crawler
   schema_change_policy {
-    update_behavior = "UPDATE_IN_DATABASE"
+    update_behavior = "LOG"
     delete_behavior = "LOG"
   }
+
+  # Modo com update de schema automático, mas pode gerar custos maiores no crawler
+  # schema_change_policy {
+  #   update_behavior = "UPDATE_IN_DATABASE"
+  #   delete_behavior = "LOG"
+  # }
 }

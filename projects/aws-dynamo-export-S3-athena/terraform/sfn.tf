@@ -18,7 +18,10 @@ resource "aws_iam_role" "sfn_role" {
 data "aws_iam_policy_document" "sfn_policy" {
   # Permissão para acionar a API do DynamoDB
   statement {
-    actions = ["dynamodb:ExportTableToPointInTime"]
+    actions = [
+      "dynamodb:ExportTableToPointInTime",
+      "dynamodb:DescribeExport" # Permite perguntar o status do export
+    ]
     resources = [
       aws_dynamodb_table.this.arn,
       "${aws_dynamodb_table.this.arn}/*" # O export precisa de acesso ao nível da tabela
@@ -33,6 +36,11 @@ data "aws_iam_policy_document" "sfn_policy" {
       "s3:AbortMultipartUpload"
     ]
     resources = ["${aws_s3_bucket.this.arn}/*"]
+  }
+
+  statement {
+    actions   = ["glue:StartCrawler"]
+    resources = [aws_glue_crawler.daily_export.arn]
   }
 }
 
