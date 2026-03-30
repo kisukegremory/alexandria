@@ -1,0 +1,31 @@
+services:
+  localstack:
+    image: localstack/localstack:3.0.0
+    container_name: localstack
+    ports:
+      - "4566:4566"  # LocalStack Gateway
+      - "4510-4559:4510-4559"
+    environment:
+      - SERVICES=sqs           # Define apenas SQS para economizar recurso
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./volume_localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  terraform-provisioner:
+    build:
+      context: .
+      dockerfile: Dockerfile.terraform
+    container_name: terraform_provisioner
+    volumes:
+      - .:/infra
+    environment:
+      - TF_VAR_localstack_endpoint=http://localstack:4566
+    depends_on:
+      localstack:
+        condition: service_healthy

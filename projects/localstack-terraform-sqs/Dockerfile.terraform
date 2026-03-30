@@ -1,0 +1,10 @@
+# Usando a versão light para ser eficiente (Pragmatismo)
+FROM hashicorp/terraform:1.7.0
+
+# Instalamos o curl para o container conseguir checar o health do LocalStack
+RUN apk add --no-cache curl
+
+# Definimos o diretório de trabalho
+WORKDIR /infra
+
+ENTRYPOINT ["/bin/sh", "/infra/entrypoint.sh"]
