@@ -1,0 +1,9 @@
+[project]
+name = "aws-bedrock-guardrails"
+version = "0.1.0"
+description = "Bedrock Guardrails — chatbot de fintech com content filtering, topic denial e PII redaction"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.43.7",
+]
