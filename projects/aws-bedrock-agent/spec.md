@@ -95,7 +95,16 @@ The mock in-memory store is intentional for this study project. In production, u
 ### 7. ReAct loop and KB vs action group routing
 The agent decides autonomously whether to retrieve from KB or call a Lambda function. The instruction text matters: explicitly telling the agent "if KB has the answer, do NOT create a ticket" significantly reduces unnecessary ticket creation. Vague instructions cause the agent to create tickets for every issue.
 
-### 8. Session memory scope
+### 8. S3 Vectors index requires non_filterable_metadata_keys for Bedrock KB
+By default, every field stored by Bedrock KB in S3 Vectors counts toward the 2048-byte filterable metadata limit. Bedrock KB uses two keys — `AMAZON_BEDROCK_TEXT_CHUNK` (the chunk text) and `AMAZON_BEDROCK_METADATA` (source/doc metadata) — which easily exceed that limit for any real document. The fix is to declare them as non-filterable in the index:
+```hcl
+metadata_configuration {
+  non_filterable_metadata_keys = ["AMAZON_BEDROCK_TEXT_CHUNK", "AMAZON_BEDROCK_METADATA"]
+}
+```
+The text is still stored and returned during retrieval; it just can't be used as a vector search filter, which is fine for RAG.
+
+### 9. Session memory scope
 Session memory is scoped to the `sessionId` passed to `InvokeAgent`. The agent remembers the conversation context within one session. Across different session IDs, memory is independent. Cross-session (long-term) memory requires explicit Bedrock Memory configuration.
 
 ## Test Scenarios

@@ -8,6 +8,12 @@ resource "aws_s3vectors_index" "kb_index" {
   data_type          = "float32"
   dimension          = 1024
   distance_metric    = "cosine"
+
+  # Bedrock KB stores chunk text and doc metadata as these keys.
+  # Marking them non-filterable keeps filterable metadata under the 2048-byte S3 Vectors limit.
+  metadata_configuration {
+    non_filterable_metadata_keys = ["AMAZON_BEDROCK_TEXT_CHUNK", "AMAZON_BEDROCK_METADATA"]
+  }
 }
 
 resource "aws_bedrockagent_knowledge_base" "techcorp" {
@@ -45,7 +51,7 @@ resource "aws_bedrockagent_data_source" "docs" {
     chunking_configuration {
       chunking_strategy = "FIXED_SIZE"
       fixed_size_chunking_configuration {
-        max_tokens         = 200
+        max_tokens         = 100
         overlap_percentage = 10
       }
     }
