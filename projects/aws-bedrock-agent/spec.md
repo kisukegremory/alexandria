@@ -104,7 +104,12 @@ metadata_configuration {
 ```
 The text is still stored and returned during retrieval; it just can't be used as a vector search filter, which is fine for RAG.
 
-### 9. Session memory scope
+### 9. Nova Lite incompatível com Bedrock Agents ReAct
+Nova Lite (`amazon.nova-lite-v1:0`) gera um bloco `<thinking>` como texto puro e encerra o turno com `end_turn` sem emitir `toolUse` — o orchestrator recebe `LLM prediction format incorrect` e retorna "Sorry, I am unable to assist". Usar **Nova Pro** (`amazon.nova-pro-v1:0`) resolve: ele emite tool calls no formato esperado pelo loop ReAct.
+
+Sintoma: todas as invocações retornam a mesma mensagem genérica de erro, independente do input.
+
+### 10. Session memory scope
 Session memory is scoped to the `sessionId` passed to `InvokeAgent`. The agent remembers the conversation context within one session. Across different session IDs, memory is independent. Cross-session (long-term) memory requires explicit Bedrock Memory configuration.
 
 ## Test Scenarios
