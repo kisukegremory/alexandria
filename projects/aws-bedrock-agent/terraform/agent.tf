@@ -13,7 +13,7 @@ resource "aws_bedrockagent_agent" "techcorp" {
     4. When asked about ticket status, use get_ticket_status with the ticket ID.
     5. When the user wants to escalate an unresolved issue, use escalate_ticket.
 
-    Always be professional, concise, and empathetic. Ask for clarification if needed before creating a ticket.
+    Always be professional, concise, and empathetic. If the issue is unclear, create the ticket anyway and note it needs follow-up.
   EOT
 }
 
@@ -36,7 +36,7 @@ resource "aws_bedrockagent_agent_action_group" "tickets" {
           map_block_key = "user_id"
           type          = "string"
           description   = "Employee ID or email of the user reporting the issue"
-          required      = true
+          required      = false
         }
         parameters {
           map_block_key = "category"

@@ -32,7 +32,7 @@ class TestSingleTurn:
 
     def test_kb_miss_creates_ticket(self, ticket_state):
         reply = invoke_agent(
-            "Meu teclado parou de funcionar completamente após atualizar o driver ontem à noite.",
+            "O Teams está retornando erro CAA20004 license not assigned desde ontem e já reinstalei duas vezes.",
             session_id=str(uuid.uuid4()),
         )
         m = re.search(r"TK-\d+", reply, re.IGNORECASE)
@@ -65,7 +65,7 @@ class TestMultiTurn:
 
     def test_create_ticket(self, multiturn_state):
         reply = invoke_agent(
-            "Meu monitor externo não é detectado após trocar o cabo HDMI.",
+            "Não consigo acessar o sistema de folha de pagamento, diz que minha conta não tem permissão mesmo após aprovação do gestor.",
             session_id=multiturn_state["session_id"],
         )
         m = re.search(r"TK-\d+", reply, re.IGNORECASE)
