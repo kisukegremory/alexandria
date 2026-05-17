@@ -1,21 +1,21 @@
-AGENT_ID       := $(shell cd terraform && terraform output -raw agent_id 2>/dev/null)
-AGENT_ALIAS_ID := $(shell cd terraform && terraform output -raw agent_alias_id 2>/dev/null)
-KB_ID          := $(shell cd terraform && terraform output -raw kb_id 2>/dev/null)
-DATA_SOURCE_ID := $(shell cd terraform && terraform output -raw data_source_id 2>/dev/null)
-DOCS_BUCKET    := $(shell cd terraform && terraform output -raw docs_bucket_name 2>/dev/null)
+AGENT_ID       := $(shell terraform -chdir=terraform output -raw agent_id 2>/dev/null)
+AGENT_ALIAS_ID := $(shell terraform -chdir=terraform output -raw agent_alias_id 2>/dev/null)
+KB_ID          := $(shell terraform -chdir=terraform output -raw kb_id 2>/dev/null)
+DATA_SOURCE_ID := $(shell terraform -chdir=terraform output -raw data_source_id 2>/dev/null)
+DOCS_BUCKET    := $(shell terraform -chdir=terraform output -raw docs_bucket_name 2>/dev/null)
 SESSION_ID     ?= $(shell python3 -c "import uuid; print(uuid.uuid4())")
 MSG            ?= Preciso de ajuda com TI.
 
 .PHONY: init apply destroy prepare publish upload-docs ingest ingest-status invoke test
 
 init:
-	cd terraform && terraform init
+	terraform -chdir=terraform init
 
 apply:
-	cd terraform && terraform apply
+	terraform -chdir=terraform apply
 
 destroy:
-	cd terraform && terraform destroy
+	terraform -chdir=terraform destroy
 
 # Required after apply and after any agent/action-group/KB change before invoking
 prepare:
@@ -26,7 +26,8 @@ prepare:
 
 # Taint the alias so Terraform re-creates it, which publishes a new agent version
 publish:
-	cd terraform && terraform taint aws_bedrockagent_agent_alias.live && terraform apply
+	terraform -chdir=terraform taint aws_bedrockagent_agent_alias.live
+	terraform -chdir=terraform apply
 
 upload-docs:
 	aws s3 sync docs/ s3://$(DOCS_BUCKET)/ \
