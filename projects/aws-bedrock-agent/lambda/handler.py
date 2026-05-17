@@ -9,11 +9,20 @@ def _next_id() -> str:
     return f"TK-{_counter[0]:03d}"
 
 
-def _ok(body: str) -> dict:
-    return {"response": {"functionResponse": {"responseBody": {"TEXT": {"body": body}}}}}
+def _ok(body: str, event: dict) -> dict:
+    return {
+        "messageVersion": "1.0",
+        "response": {
+            "actionGroup": event["actionGroup"],
+            "function": event["function"],
+            "functionResponse": {
+                "responseBody": {"TEXT": {"body": body}}
+            },
+        },
+    }
 
 
-def create_ticket(params: dict) -> dict:
+def create_ticket(params: dict, event: dict) -> dict:
     tid = _next_id()
     priority = params.get("priority", "MEDIUM").upper()
     category = params.get("category", "OTHER").upper()
@@ -28,32 +37,35 @@ def create_ticket(params: dict) -> dict:
     }
     return _ok(
         f"Ticket {tid} created. Category: {category}, Priority: {priority}. "
-        "Our team will contact you shortly."
+        "Our team will contact you shortly.",
+        event,
     )
 
 
-def get_ticket_status(params: dict) -> dict:
+def get_ticket_status(params: dict, event: dict) -> dict:
     tid = params.get("ticket_id", "").upper()
     t = TICKETS.get(tid)
     if not t:
-        return _ok(f"Ticket {tid} not found. Please check the ticket ID.")
+        return _ok(f"Ticket {tid} not found. Please check the ticket ID.", event)
     return _ok(
         f"Ticket {tid} — Status: {t['status']}, Category: {t['category']}, "
-        f"Priority: {t['priority']}, Created: {t['created_at']}"
+        f"Priority: {t['priority']}, Created: {t['created_at']}",
+        event,
     )
 
 
-def escalate_ticket(params: dict) -> dict:
+def escalate_ticket(params: dict, event: dict) -> dict:
     tid = params.get("ticket_id", "").upper()
     reason = params.get("reason", "not provided")
     t = TICKETS.get(tid)
     if not t:
-        return _ok(f"Ticket {tid} not found. Please check the ticket ID.")
+        return _ok(f"Ticket {tid} not found. Please check the ticket ID.", event)
     t["status"] = "ESCALATED"
     t["escalation_reason"] = reason
     return _ok(
         f"Ticket {tid} escalated to Tier 2 support. Reason: {reason}. "
-        "A senior technician will contact you within 2 hours."
+        "A senior technician will contact you within 2 hours.",
+        event,
     )
 
 
@@ -62,10 +74,10 @@ def handler(event, context):
     params = {p["name"]: p["value"] for p in event.get("parameters", [])}
 
     if action == "create_ticket":
-        return create_ticket(params)
+        return create_ticket(params, event)
     if action == "get_ticket_status":
-        return get_ticket_status(params)
+        return get_ticket_status(params, event)
     if action == "escalate_ticket":
-        return escalate_ticket(params)
+        return escalate_ticket(params, event)
 
-    return _ok(f"Unknown action: {action}")
+    return _ok(f"Unknown action: {action}", event)
