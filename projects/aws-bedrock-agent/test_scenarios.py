@@ -1,117 +1,91 @@
 import re
-import sys
 import uuid
+
+import pytest
 
 from agent import invoke_agent
 
-GREEN = "\033[32m"
-RED = "\033[31m"
-RESET = "\033[0m"
+
+# Shared mutable state within each test class — fixtures are class-scoped so
+# each class gets its own instance, preserving test isolation between classes.
+
+@pytest.fixture(scope="class")
+def ticket_state():
+    return {"ticket_id": None}
 
 
-def run(label: str, message: str, session_id: str | None = None,
-        expect: list[str] | None = None, reject: list[str] | None = None) -> tuple[str, str, bool]:
-    sid = session_id or str(uuid.uuid4())
-    try:
-        reply = invoke_agent(message, session_id=sid)
-        print(f"\n{'='*60}")
-        print(f"[{label}]")
-        print(f"  MSG:   {message[:120]}")
-        print(f"  REPLY: {reply[:300]}")
-
-        passed = True
-        for kw in (expect or []):
-            if kw.lower() not in reply.lower():
-                print(f"  MISSING '{kw}'")
-                passed = False
-        for kw in (reject or []):
-            if kw.lower() in reply.lower():
-                print(f"  UNEXPECTED '{kw}'")
-                passed = False
-
-        status = f"{GREEN}PASS{RESET}" if passed else f"{RED}FAIL{RESET}"
-        print(f"  {status}")
-        return reply, sid, passed
-    except Exception as exc:
-        print(f"\n[{label}] {RED}ERROR{RESET}: {exc}")
-        return "", sid or str(uuid.uuid4()), False
+@pytest.fixture(scope="class")
+def multiturn_state():
+    return {"session_id": str(uuid.uuid4()), "ticket_id": None}
 
 
-def main() -> None:
-    results: list[bool] = []
+class TestSingleTurn:
+    """Tests 1–4: independent sessions, sequential ticket lifecycle."""
 
-    # 1. KB hit — VPN problem has documented solution, agent should NOT create a ticket
-    _, _, ok = run(
-        "1. KB Hit — VPN",
-        "Minha VPN não está conectando. O que devo fazer?",
-        expect=["vpn"],
-        reject=["TK-"],
-    )
-    results.append(ok)
+    def test_kb_hit_vpn(self):
+        reply = invoke_agent(
+            "Minha VPN não está conectando. O que devo fazer?",
+            session_id=str(uuid.uuid4()),
+        )
+        assert "vpn" in reply.lower(), f"Expected VPN guidance, got: {reply}"
+        assert "TK-" not in reply.upper(), f"KB hit should not create a ticket, got: {reply}"
 
-    # 2. KB miss — unknown hardware issue → agent creates ticket
-    reply2, _, ok = run(
-        "2. KB Miss → create_ticket",
-        "Meu teclado parou de funcionar completamente após atualizar o driver ontem à noite.",
-        expect=["TK-"],
-    )
-    results.append(ok)
+    def test_kb_miss_creates_ticket(self, ticket_state):
+        reply = invoke_agent(
+            "Meu teclado parou de funcionar completamente após atualizar o driver ontem à noite.",
+            session_id=str(uuid.uuid4()),
+        )
+        m = re.search(r"TK-\d+", reply, re.IGNORECASE)
+        assert m, f"Expected a ticket ID (TK-XXX) in reply: {reply}"
+        ticket_state["ticket_id"] = m.group(0).upper()
 
-    m = re.search(r"TK-\d+", reply2, re.IGNORECASE)
-    ticket_id = m.group(0).upper() if m else "TK-001"
+    def test_get_ticket_status(self, ticket_state):
+        tid = ticket_state["ticket_id"]
+        assert tid, "ticket_id missing — test_kb_miss_creates_ticket must run first"
+        reply = invoke_agent(
+            f"Qual é o status do ticket {tid}?",
+            session_id=str(uuid.uuid4()),
+        )
+        assert tid in reply, f"Expected ticket ID {tid} in reply: {reply}"
+        assert "open" in reply.lower(), f"Expected status OPEN in reply: {reply}"
 
-    # 3. Status check
-    _, _, ok = run(
-        "3. get_ticket_status",
-        f"Qual é o status do ticket {ticket_id}?",
-        expect=[ticket_id, "OPEN"],
-    )
-    results.append(ok)
-
-    # 4. Escalation
-    _, _, ok = run(
-        "4. escalate_ticket",
-        f"O problema do ticket {ticket_id} não foi resolvido. Quero escalar para Nível 2.",
-        expect=["escalad", ticket_id],
-    )
-    results.append(ok)
-
-    # 5. Multi-turn — single session: create → status → escalate without repeating IDs
-    sid = str(uuid.uuid4())
-
-    reply5a, _, ok5a = run(
-        "5a. Multi-turn: create",
-        "Meu monitor externo não é detectado após trocar o cabo HDMI.",
-        expect=["TK-"],
-        session_id=sid,
-    )
-    results.append(ok5a)
-
-    m5 = re.search(r"TK-\d+", reply5a, re.IGNORECASE)
-    tid5 = m5.group(0).upper() if m5 else "TK-002"
-
-    _, _, ok5b = run(
-        "5b. Multi-turn: status (same session)",
-        f"Qual o status do chamado {tid5}?",
-        expect=[tid5],
-        session_id=sid,
-    )
-    results.append(ok5b)
-
-    _, _, ok5c = run(
-        "5c. Multi-turn: escalate (same session)",
-        f"Quero escalar o ticket {tid5}, o problema está impedindo meu trabalho.",
-        expect=["escalad"],
-        session_id=sid,
-    )
-    results.append(ok5c)
-
-    passed = sum(results)
-    total = len(results)
-    print(f"\n{'='*60}")
-    print(f"Results: {passed}/{total} passed")
-    sys.exit(0 if passed == total else 1)
+    def test_escalate_ticket(self, ticket_state):
+        tid = ticket_state["ticket_id"]
+        assert tid, "ticket_id missing — test_kb_miss_creates_ticket must run first"
+        reply = invoke_agent(
+            f"O problema do ticket {tid} não foi resolvido. Quero escalar para Nível 2.",
+            session_id=str(uuid.uuid4()),
+        )
+        assert "escalad" in reply.lower(), f"Expected escalation confirmation in reply: {reply}"
+        assert tid in reply, f"Expected ticket ID {tid} in reply: {reply}"
 
 
-if __name__ == "__main__":
-    main()
+class TestMultiTurn:
+    """Test 5: single session across create → status → escalate turns."""
+
+    def test_create_ticket(self, multiturn_state):
+        reply = invoke_agent(
+            "Meu monitor externo não é detectado após trocar o cabo HDMI.",
+            session_id=multiturn_state["session_id"],
+        )
+        m = re.search(r"TK-\d+", reply, re.IGNORECASE)
+        assert m, f"Expected a ticket ID (TK-XXX) in reply: {reply}"
+        multiturn_state["ticket_id"] = m.group(0).upper()
+
+    def test_status_same_session(self, multiturn_state):
+        tid = multiturn_state["ticket_id"]
+        assert tid, "ticket_id missing — test_create_ticket must run first"
+        reply = invoke_agent(
+            f"Qual o status do chamado {tid}?",
+            session_id=multiturn_state["session_id"],
+        )
+        assert tid in reply, f"Expected ticket ID {tid} in reply: {reply}"
+
+    def test_escalate_same_session(self, multiturn_state):
+        tid = multiturn_state["ticket_id"]
+        assert tid, "ticket_id missing — test_create_ticket must run first"
+        reply = invoke_agent(
+            f"Quero escalar o ticket {tid}, o problema está impedindo meu trabalho.",
+            session_id=multiturn_state["session_id"],
+        )
+        assert "escalad" in reply.lower(), f"Expected escalation confirmation in reply: {reply}"

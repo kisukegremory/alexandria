@@ -60,4 +60,4 @@ chat:
 
 test:
 	AGENT_ID=$(AGENT_ID) AGENT_ALIAS_ID=$(AGENT_ALIAS_ID) \
-		uv run python test_scenarios.py
+		uv run pytest test_scenarios.py -v
