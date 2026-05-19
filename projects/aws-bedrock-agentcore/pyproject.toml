@@ -1,0 +1,10 @@
+[project]
+name = "aws-bedrock-agentcore"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "strands-agents>=0.1",
+    "strands-agents-tools>=0.1",
+    "boto3>=1.38",
+    "pytest>=9.0",
+]
