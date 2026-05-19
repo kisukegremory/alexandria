@@ -5,6 +5,7 @@ from tools.hotel_tools import search_hotels
 accommodation_agent = Agent(
     model=BedrockModel(model_id="amazon.nova-lite-v1:0"),
     tools=[search_hotels],
+    callback_handler=None,
     system_prompt=(
         "You are an accommodation specialist. "
         "When given a travel request, extract destination, check-in, check-out, number of guests and budget. "

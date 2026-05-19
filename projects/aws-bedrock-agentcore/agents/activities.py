@@ -5,6 +5,7 @@ from tools.activity_tools import get_activities
 activities_agent = Agent(
     model=BedrockModel(model_id="amazon.nova-lite-v1:0"),
     tools=[get_activities],
+    callback_handler=None,
     system_prompt=(
         "You are a travel activities specialist. "
         "When given a travel request, extract destination, number of days and traveler profile. "

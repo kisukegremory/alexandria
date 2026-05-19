@@ -5,6 +5,7 @@ from tools.flight_tools import search_flights
 flights_agent = Agent(
     model=BedrockModel(model_id="amazon.nova-lite-v1:0"),
     tools=[search_flights],
+    callback_handler=None,
     system_prompt=(
         "You are a flight search specialist. "
         "When given a travel request, extract origin, destination, date and number of passengers. "
