@@ -61,9 +61,30 @@ var entitiesCmd = &cobra.Command{
 	},
 }
 
+var piiCmd = &cobra.Command{
+	Use:   "pii",
+	Short: "Detecta PII nos textos enviados",
+	Run: func(cmd *cobra.Command, args []string) {
+		client := comprehend.NewFromConfig(cfg)
+		output, err := client.DetectPiiEntities(context.TODO(), &comprehend.DetectPiiEntitiesInput{
+			LanguageCode: types.LanguageCodeEn,
+			Text:         &comprehendText,
+		})
+		if err != nil {
+			fmt.Printf("Erro ao Avaliar PII: %v", err)
+			return
+		}
+
+		for _, entity := range output.Entities {
+			fmt.Printf("Entidade %v, Score %v \n", entity.Type, *entity.Score)
+		}
+	},
+}
+
 func init() {
 	comprehendCmd.PersistentFlags().StringVarP(&comprehendText, "text", "t", "", "Texto a ser analisado")
 	comprehendCmd.AddCommand(sentimentCmd)
 	comprehendCmd.AddCommand(entitiesCmd)
+	comprehendCmd.AddCommand(piiCmd)
 	rootCmd.AddCommand(comprehendCmd)
 }
