@@ -20,7 +20,7 @@ var sentimentCmd = &cobra.Command{
 	Use:   "sentiment",
 	Short: "Para analise de sentimentos",
 	Run: func(cmd *cobra.Command, args []string) {
-		comprehendClient := *comprehend.NewFromConfig(cfg)
+		comprehendClient := comprehend.NewFromConfig(cfg)
 		println("Analisando os sentimentos do texto", comprehendText)
 		input := comprehend.DetectSentimentInput{
 			LanguageCode: types.LanguageCode("pt"),
@@ -38,6 +38,25 @@ var sentimentCmd = &cobra.Command{
 			*output.SentimentScore.Neutral,
 			*output.SentimentScore.Mixed,
 		)
+	},
+}
+
+var entitiesCmd = &cobra.Command{
+	Use:   "entities",
+	Short: "Para analise de Entidades dentro de textos",
+	Run: func(cmd *cobra.Command, args []string) {
+		client := comprehend.NewFromConfig(cfg)
+		output, err := client.DetectEntities(context.TODO(), &comprehend.DetectEntitiesInput{
+			LanguageCode: types.LanguageCodePt,
+			Text:         &comprehendText,
+		})
+		if err != nil {
+			fmt.Printf("Erro ao gerar entidades: %v", err)
+			return
+		}
+		for _, entity := range output.Entities {
+			fmt.Printf("Tipo: %v, Texto: %v, Score %.4f \n", entity.Type, *entity.Text, *entity.Score)
+		}
 
 	},
 }
@@ -45,5 +64,6 @@ var sentimentCmd = &cobra.Command{
 func init() {
 	comprehendCmd.PersistentFlags().StringVarP(&comprehendText, "text", "t", "", "Texto a ser analisado")
 	comprehendCmd.AddCommand(sentimentCmd)
+	comprehendCmd.AddCommand(entitiesCmd)
 	rootCmd.AddCommand(comprehendCmd)
 }
